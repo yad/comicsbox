@@ -1,30 +1,19 @@
 using Comicsbox;
-using Comicsbox.Cache;
-using Comicsbox.FileBrowser;
-using Comicsbox.Imaging;
-using Comicsbox.Worker;
 using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
 
-
 // Add services to the container.
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddSingleton<ImageService, ImageService>();
 
-builder.Services.AddMemoryCache();
+builder.Services.AddSingleton<BookInfoService, BookInfoService>();
+builder.Services.AddSingleton<ThumbnailProvider, ThumbnailProvider>();
+builder.Services.AddSingleton<ThumbnailWorkerService, ThumbnailWorkerService>();
 
-var externalFileProvider = new PhysicalFileProvider(builder.Configuration["Settings:AbsoluteBasePath"]);
-var compositeProvider = new CompositeFileProvider(externalFileProvider);
-builder.Services.AddSingleton<IFileProvider>(compositeProvider);
-
-builder.Services.AddSingleton<ICacheService, CacheService>();
-builder.Services.AddSingleton<IImageService, ImageService>();
-
-builder.Services.AddTransient<IBookInfoService, BookInfoService>();
-builder.Services.AddTransient<IFilePathFinder, FilePathFinder>();
-builder.Services.AddSingleton<ThumbnailWorker, ThumbnailWorker>();
+builder.Services.AddHostedService<ThumbnailWorkerService>();
 
 var app = builder.Build();
 
@@ -38,7 +27,6 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
-
 
 app.MapControllerRoute(
     name: "default",

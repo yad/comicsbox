@@ -1,30 +1,56 @@
-﻿using Comicsbox.FileBrowser;
-using Microsoft.Extensions.FileProviders;
+﻿using System.Security.Cryptography;
+using System.Text;
 
-namespace Comicsbox.Imaging
+namespace Comicsbox
 {
     public class ThumbnailProvider
     {
-        private readonly IFilePathFinder _pathFinder;
+        private readonly ImageService _imageService;
 
-        public ThumbnailProvider(IFilePathFinder pathFinder)
+        public ThumbnailProvider(ImageService imageService)
         {
-            _pathFinder = pathFinder;
+            _imageService = imageService;
         }
 
-        public byte[] GetThumbnailContent(string name)
+        public string GetThumbnailFileName(string filePath)
         {
-            var fileInfo = GetThumbnail(name);
-            return fileInfo.ToByteArray();
+            var fileName = Path.GetFileName(filePath);
+            var serie = Path.GetFileName(Path.GetDirectoryName(filePath));
+            var type = Path.GetFileName(Path.GetDirectoryName(Path.GetDirectoryName(filePath)));
+
+            var thumbnailFileName = $"{type}_{serie}_{fileName}".ToLower();
+
+            var hexString = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(thumbnailFileName)));
+
+            return $"{hexString}.jpg";
         }
 
-        public IFileInfo GetThumbnail(string name)
+        public void ProcessFile(string filePath)
         {
-            string defaultFileContainerExtension = BookInfoService.DefaultFileContainerExtension;
-            var filePath = name.Contains(defaultFileContainerExtension) ? _pathFinder.LocateFile(name) : _pathFinder.LocateFirstFile(defaultFileContainerExtension);
-            string thumbnailFileName = string.Format("{0}.jpg", filePath.FileName);
-            var thumbnailFile = _pathFinder.LocateFile(thumbnailFileName);
-            return _pathFinder.GetThumbnailFileInfoForFile(thumbnailFile);
+            var cacheThumbnail = Path.Combine("wwwroot", "cache", "thumbnails", GetThumbnailFileName(filePath));
+            if (File.Exists(cacheThumbnail))
+            {
+                return;
+            }
+
+            try
+            {
+                var pdfReaderService = new PdfReaderService();
+                var image = pdfReaderService.ReadCoverImage(filePath);
+
+                using (var thumbnailContent = _imageService.ScaleAsThumbnail(image))
+                using (var fileStream = File.Create(cacheThumbnail))
+                {
+                    thumbnailContent.Seek(0, SeekOrigin.Begin);
+                    thumbnailContent.CopyTo(fileStream);
+                }
+
+                // Console.WriteLine($"{filePath}:: DONE ({cacheThumbnail})");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"{filePath}:: {ex}");
+            }
         }
     }
 }

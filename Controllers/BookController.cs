@@ -3,12 +3,12 @@
 namespace Comicsbox.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class BookController : ControllerBase
 {
-    private readonly IBookInfoService _bookInfoService;
+    private readonly BookInfoService _bookInfoService;
 
-    public BookController(IBookInfoService bookInfoService)
+    public BookController(BookInfoService bookInfoService)
     {
         _bookInfoService = bookInfoService;
     }
@@ -16,7 +16,7 @@ public class BookController : ControllerBase
     [HttpGet("{category}")]
     public BookContainer<Book> Get(string category)
     {
-        return _bookInfoService.GetBookList(category);
+        return _bookInfoService.GetBookList(category, "");
     }
 
     [HttpGet("{category}/{book}")]
@@ -25,10 +25,10 @@ public class BookController : ControllerBase
         return _bookInfoService.GetBookList(category, book);
     }
 
-    [HttpGet("{category}/{book}/{chapter}/{page}")]
-    public PageDetail Get(string category, string book, string chapter, int page)
-    {
-        return _bookInfoService.GetDetail(category, book, chapter, page);
-    }
+    // [HttpGet("{category}/{book}/{chapter}/{page}")]
+    // public PageDetail Get(string category, string book, string chapter, int page)
+    // {
+    //     return _bookInfoService.GetDetail(category, book, chapter, page);
+    // }
 }
 

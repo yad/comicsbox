@@ -6,9 +6,9 @@ namespace Comicsbox.Controllers;
 [Route("[controller]")]
 public class ThumbnailController : ControllerBase
 {
-    private readonly IBookInfoService _bookInfoService;
+    private readonly BookInfoService _bookInfoService;
 
-    public ThumbnailController(IBookInfoService bookInfoService)
+    public ThumbnailController(BookInfoService bookInfoService)
     {
         _bookInfoService = bookInfoService;
     }
@@ -16,7 +16,7 @@ public class ThumbnailController : ControllerBase
     [HttpGet("{category}/{pagination}")]
     public BookContainer<Book> Get(string category, int pagination)
     {
-        return _bookInfoService.GetBookThumbnails(category).WithPagination(pagination);
+        return _bookInfoService.GetBookThumbnails(category, "").WithPagination(pagination);
     }
 
     [HttpGet("{category}/{book}/{pagination}")]

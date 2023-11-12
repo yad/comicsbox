@@ -1,4 +1,4 @@
-﻿namespace Comicsbox.Imaging
+﻿namespace Comicsbox
 {
     public enum ImageSide
     {
