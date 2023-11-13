@@ -47,6 +47,10 @@ namespace Comicsbox
 
                 // Console.WriteLine($"{filePath}:: DONE ({cacheThumbnail})");
             }
+            catch (ArgumentNullException)
+            {
+                Console.WriteLine($"{filePath}:: Thumbnail cannot be found");
+            }
             catch (Exception ex)
             {
                 Console.WriteLine($"{filePath}:: {ex}");

@@ -15,9 +15,12 @@ namespace Comicsbox
                 var resources = pdfDocument.GetPage(1).GetResources();
                 foreach (var resource in resources.GetResourceNames())
                 {
-                    return resources.GetImage(resource).GetImageBytes();
+                    var image = resources.GetImage(resource);
+                    if (image != null)
+                    {
+                        return image.GetImageBytes();
+                    }
                 }
-
             }
 
             return null;
