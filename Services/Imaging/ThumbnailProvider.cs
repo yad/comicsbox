@@ -30,7 +30,17 @@ namespace Comicsbox
             var cacheThumbnail = Path.Combine("wwwroot", "cache", "thumbnails", GetThumbnailFileName(filePath));
             if (File.Exists(cacheThumbnail))
             {
-                return;
+                var src = new FileInfo(filePath);
+                var dst = new FileInfo(cacheThumbnail);
+
+                if (dst.LastWriteTimeUtc < src.LastWriteTimeUtc)
+                {
+                    File.Delete(cacheThumbnail);
+                }
+                else
+                {
+                    return;
+                }
             }
 
             try
