@@ -25,17 +25,17 @@ export default function Books({ setTitles }) {
             setBooks([
                 {
                     "name": "BD",
-                    "thumbnail": "0E0380CD5517F687D8F9FFD42F65EB52443EFC5057CE4FE7E11F472E1ED83392.jpg"
+                    "thumbnail": "BD.jpg"
                 },
                 {
                     "name": "Comics",
-                    "thumbnail": "0E0380CD5517F687D8F9FFD42F65EB52443EFC5057CE4FE7E11F472E1ED83392.jpg"
+                    "thumbnail": "Comics.jpg"
                 },
                 {
                     "name": "Mangas",
-                    "thumbnail": "0E0380CD5517F687D8F9FFD42F65EB52443EFC5057CE4FE7E11F472E1ED83392.jpg"
+                    "thumbnail": "Mangas.jpg"
                 }
-            ]);
+            ].map((category) => ({...category, "isMain": true})));
             setTitles([]);
         }
     }, [location]);
@@ -49,7 +49,7 @@ export default function Books({ setTitles }) {
                     style={{ margin: 3, padding: 3 }}
                 >
                     <Card
-                        sx={{ width: '111px', height: '147px', display: 'flex', flexDirection: 'column' }}
+                        sx={{ width: book.isMain ? '333px' : '111px', height: book.isMain ? '441px' : '147px', display: 'flex', flexDirection: 'column' }}
                     >
                         <img src={`/cache/thumbnails/${book.thumbnail}`}></img>
                     </Card>
