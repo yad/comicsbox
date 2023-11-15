@@ -2,78 +2,109 @@
 
 namespace Comicsbox
 {
-    public class PdfReaderService
+    public class PdfReaderService : IDisposable
     {
-        public byte[] ReadCoverImage(string pdfPath)
+        private readonly ImageService _imageService;
+
+        private PdfReader _pdfReader = null!;
+        private PdfDocument _pdfDocument = null!;
+        private bool _isReversed = false;
+
+        public PdfReaderService(ImageService imageService)
         {
-            // int firstPage = IsDoublePage(1) ? 2 : 1;
-            // return ReadImageAtPage(firstPage);
-
-            using (var pdfReader = new PdfReader(pdfPath))
-            using (PdfDocument pdfDocument = new PdfDocument(pdfReader))
-            {
-                var resources = pdfDocument.GetPage(1).GetResources();
-                foreach (var resource in resources.GetResourceNames())
-                {
-                    var image = resources.GetImage(resource);
-                    if (image != null)
-                    {
-                        return image.GetImageBytes();
-                    }
-                }
-            }
-
-            return null;
+            _imageService = imageService;
         }
 
-        // public byte[] ReadImageAtPage(int page)
-        // {
-        //     var currentPage = GetPageN(page);
-        //     var resources = (PdfDictionary)InnerPdfReader.GetPdfObject(currentPage.PdfPageContent.Get(PdfName.RESOURCES));
-        //     var xobject = (PdfDictionary)InnerPdfReader.GetPdfObject(resources.Get(PdfName.XOBJECT));
-        //     var pdfName = xobject.Keys.OfType<PdfName>().Single();
-        //     var pdfObject = (PRIndirectReference)xobject.Get(pdfName);
-        //     var stream = (PRStream)_pdfReader.GetPdfObject(pdfObject.Number);
-        //     var imageBytes = InnerPdfReader.GetStreamBytesRaw(stream);
-        //     return _imageService.TakePageSide(imageBytes, currentPage.ImageSide);
-        // }
+        public PdfReaderService LoadFile(string pdfPath, bool isReversed)
+        {
+            _pdfReader = new PdfReader(pdfPath);
+            _pdfDocument = new PdfDocument(_pdfReader);
+            _isReversed = isReversed;
+            return this;
+        }
+
+        public byte[] ReadCoverImage()
+        {
+            int firstPage = IsDoublePage(1) ? 2 : 1;
+            return GetPageN(firstPage);
+        }
 
         // public bool IsPageExists(int page)
         // {
         //     return GetPageN(page) != null;
         // }
 
-        // private PdfPage GetPageN(int page)
-        // {
-        //     int virtualPageIndex = 0;
-        //     for (int actualPageIndex = 1; actualPageIndex <= _pdfReader.NumberOfPages; actualPageIndex++)
-        //     {
-        //         bool isDoublePage = IsDoublePage(actualPageIndex);
+        private byte[] GetPageN(int page)
+        {
+            int actualPageIndex = 1;
+            int virtualPageIndex = 0;
+            ImageSide side = ImageSide.Both;
 
-        //         virtualPageIndex++;
-        //         if (page == virtualPageIndex)
-        //         {
-        //             return new PdfPage(_pdfReader.GetPageN(actualPageIndex), isDoublePage ? ImageSide.Left : ImageSide.Both);
-        //         }
+            for ( ; actualPageIndex <= _pdfDocument.GetNumberOfPages(); actualPageIndex++)
+            {
+                var isDoublePage = IsDoublePage(actualPageIndex);
 
-        //         if (isDoublePage)
-        //         {
-        //             virtualPageIndex++;
-        //             if (page == virtualPageIndex)
-        //             {
-        //                 return new PdfPage(_pdfReader.GetPageN(actualPageIndex), ImageSide.Right);
-        //             }
-        //         }
-        //     }
+                virtualPageIndex++;
+                if (page == virtualPageIndex)
+                {
+                    side = isDoublePage ? (_isReversed ? ImageSide.Right : ImageSide.Left) : ImageSide.Both;
+                    break;
+                }
 
-        //     return null;
-        // }
+                if (isDoublePage)
+                {
+                    virtualPageIndex++;
+                    if (page == virtualPageIndex)
+                    {
+                        side = ImageSide.Right;
+                        break;
+                    }
+                }
+            }
 
-        // private bool IsDoublePage(int page)
-        // {
-        //     var currentPage = _pdfReader.GetPageSize(page);
-        //     return currentPage.Width > currentPage.Height;
-        // }
+            var resources = _pdfDocument.GetPage(1).GetResources();
+            foreach (var resource in resources.GetResourceNames())
+            {
+                var pdfImage = resources.GetImage(resource);
+                if (pdfImage != null)
+                {
+                    var imageBytes = pdfImage.GetImageBytes();
+                    return _imageService.TakePageSide(imageBytes, side);
+                }
+            }
+
+            throw new InvalidOperationException($"Current PDF file is invalid");
+        }
+
+        private bool IsDoublePage(int page)
+        {
+            var currentPage = _pdfDocument.GetPage(page).GetPageSize();
+
+            var height = currentPage.GetHeight();
+            var width = currentPage.GetWidth();
+
+            if (height > width)
+            {
+                // is portrait
+                return false;
+            }
+
+            var diff = Math.Abs((height - width) * 100 / height);
+            if (diff < 10)
+            {
+                // is square
+                return false;
+            }
+
+            // landscape
+            return true;
+        }
+
+        public void Dispose()
+        {
+            ((IDisposable)_pdfDocument)?.Dispose();
+            ((IDisposable)_pdfReader)?.Dispose();
+        }
 
         // public int GetLastPageNumber()
         // {

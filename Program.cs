@@ -1,5 +1,4 @@
 using Comicsbox;
-using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddSingleton<ImageService, ImageService>();
+builder.Services.AddTransient<PdfReaderService, PdfReaderService>();
 
 builder.Services.AddSingleton<BookInfoService, BookInfoService>();
 builder.Services.AddSingleton<ThumbnailProvider, ThumbnailProvider>();

@@ -6,10 +6,12 @@ namespace Comicsbox
     public class ThumbnailProvider
     {
         private readonly ImageService _imageService;
+        private readonly PdfReaderService _pdfReaderService;
 
-        public ThumbnailProvider(ImageService imageService)
+        public ThumbnailProvider(ImageService imageService, PdfReaderService pdfReaderService)
         {
             _imageService = imageService;
+            _pdfReaderService = pdfReaderService;
         }
 
         public string GetThumbnailFileName(string filePath)
@@ -25,9 +27,10 @@ namespace Comicsbox
             return $"{hexString}.jpg";
         }
 
-        public void ProcessFile(string filePath)
+        public void ProcessFile(string filePath, bool isReversed)
         {
             var cacheThumbnail = Path.Combine("wwwroot", "cache", "thumbnails", GetThumbnailFileName(filePath));
+
             if (File.Exists(cacheThumbnail))
             {
                 var src = new FileInfo(filePath);
@@ -45,19 +48,12 @@ namespace Comicsbox
 
             try
             {
-                var pdfReaderService = new PdfReaderService();
-                var image = pdfReaderService.ReadCoverImage(filePath);
-
-                using (var thumbnailContent = _imageService.ScaleAsThumbnail(image))
-                using (var fileStream = File.Create(cacheThumbnail))
-                {
-                    thumbnailContent.Seek(0, SeekOrigin.Begin);
-                    thumbnailContent.CopyTo(fileStream);
-                }
-
+                var image = _pdfReaderService.LoadFile(filePath, isReversed).ReadCoverImage();
+                var thumbnailContent = _imageService.ScaleAsThumbnail(image);
+                File.WriteAllBytes(cacheThumbnail, thumbnailContent);
                 // Console.WriteLine($"{filePath}:: DONE ({cacheThumbnail})");
             }
-            catch (ArgumentNullException)
+            catch (InvalidOperationException)
             {
                 Console.WriteLine($"{filePath}:: Thumbnail cannot be found");
             }

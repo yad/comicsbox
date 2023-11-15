@@ -21,7 +21,7 @@
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                var files = await Task.Run(() => Browse(_configuration.GetValue<string>("Settings:AbsoluteBasePath")));
+                var files = await Task.Run(() => Browse(_configuration.GetValue<string>("Settings:AbsoluteBasePath")!));
                 Console.WriteLine($"Worker: {files.Count()} loaded.");
 
                 if (stoppingToken.IsCancellationRequested)
@@ -36,7 +36,9 @@
                         break;
                     }
 
-                    await Task.Run(() => _thumbnailProvider.ProcessFile(file), stoppingToken);
+                    var type = Path.GetFileName(Path.GetDirectoryName(Path.GetDirectoryName(file))!).ToLower();
+                    var isMangas = type == "mangas";
+                    await Task.Run(() => _thumbnailProvider.ProcessFile(file, isMangas), stoppingToken);
                 }
 
                 if (stoppingToken.IsCancellationRequested)

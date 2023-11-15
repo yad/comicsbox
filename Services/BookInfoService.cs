@@ -24,7 +24,7 @@
 
         private BookContainer<Book> BuildBookInfo(string type, string serie)
         {
-            var basePath = _configuration.GetValue<string>("Settings:AbsoluteBasePath");
+            var basePath = _configuration.GetValue<string>("Settings:AbsoluteBasePath")!;
             var path = Path.Combine(basePath, type, serie);
 
             List<Book> books = new List<Book>();
