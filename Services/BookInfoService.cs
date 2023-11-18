@@ -12,20 +12,25 @@
             _thumbnailProvider = thumbnailProvider;
         }
 
-        public BookContainer<Book> GetBookList(string type, string serie)
+        public BookContainer<Book> GetBookList(string category, string serie)
         {
-            return BuildBookInfo(type, serie);
+            return BuildBookInfo(category, serie);
         }
 
-        public BookContainer<Book> GetBookThumbnails(string type, string serie)
+        public BookContainer<Book> GetBookThumbnails(string category, string serie)
         {
-            return BuildBookInfo(type, serie);
+            return BuildBookInfo(category, serie);
         }
 
-        private BookContainer<Book> BuildBookInfo(string type, string serie)
+        public string GetSeriePath(string category, string serie)
         {
             var basePath = _configuration.GetValue<string>("Settings:AbsoluteBasePath")!;
-            var path = Path.Combine(basePath, type, serie);
+            return Path.Combine(basePath, category, serie);
+        }
+
+        private BookContainer<Book> BuildBookInfo(string category, string serie)
+        {
+            var path = GetSeriePath(category, serie);
 
             List<Book> books = new List<Book>();
 
