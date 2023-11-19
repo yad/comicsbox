@@ -10,8 +10,10 @@ builder.Services.AddTransient<PdfReaderService, PdfReaderService>();
 builder.Services.AddSingleton<BookInfoService, BookInfoService>();
 builder.Services.AddSingleton<ThumbnailProvider, ThumbnailProvider>();
 builder.Services.AddSingleton<ThumbnailWorkerService, ThumbnailWorkerService>();
+builder.Services.AddSingleton<ZipCleanerWorkerService, ZipCleanerWorkerService>();
 
 builder.Services.AddHostedService<ThumbnailWorkerService>();
+builder.Services.AddHostedService<ZipCleanerWorkerService>();
 
 var app = builder.Build();
 

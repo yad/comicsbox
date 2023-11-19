@@ -22,7 +22,7 @@
             while (!stoppingToken.IsCancellationRequested)
             {
                 var files = await Task.Run(() => Browse(_configuration.GetValue<string>("Settings:AbsoluteBasePath")!));
-                Console.WriteLine($"Worker: {files.Count()} loaded.");
+                Console.WriteLine($"ThumbnailWorker: detected {files.Count()} pdf files.");
 
                 if (stoppingToken.IsCancellationRequested)
                 {
@@ -46,11 +46,11 @@
                     break;
                 }
 
-                Console.WriteLine($"Worker: waiting 10min...");
+                Console.WriteLine($"ThumbnailWorker: waiting 10min...");
                 await Task.Delay(10 * 60 * 1000, stoppingToken);
             }
 
-            Console.WriteLine($"Worker: stopped.");
+            Console.WriteLine($"ThumbnailWorker: stopped.");
         }
 
         private IEnumerable<string> Browse(string path)
