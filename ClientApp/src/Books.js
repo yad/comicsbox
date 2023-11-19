@@ -6,6 +6,49 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import { saveAs } from "file-saver";
 
+const getBookId = (name) => {
+    if (name > 3) {
+        return Number.parseInt(name.substring(0, 3));
+    }
+
+    return Number.parseInt(name);
+};
+
+const completeSerie = (books) => {
+    const newBooks = [...books];
+
+    let firstBookId = -1;
+    let lastBookId = -1;
+
+    newBooks.forEach((book) => {
+        const bookId = getBookId(book.name);
+        if (Number.isInteger(bookId)) {
+            if (firstBookId === -1) {
+                firstBookId = bookId;
+            }
+
+            lastBookId = bookId;
+        }
+    });
+
+    for (var i = firstBookId; i <= lastBookId; i++) {
+        const previousBook = (i-1).toString().padStart(3, '0');
+        const currentBook = i.toString().padStart(3, '0');
+
+        if (!newBooks.some(b => b.name === currentBook)) {
+            const previous = newBooks.filter(b => b.name.startsWith(previousBook)).pop();
+            const index = newBooks.indexOf(previous);
+            newBooks.splice(index+1, 0, {
+                "name": currentBook,
+                "thumbnail": "Missing.jpg",
+                "isMissing": true
+            });
+        }
+    }
+
+    return newBooks;
+};
+
 export default function Books({ setTitles, setAllowDownloadAll, stopSpinner, startSpinner }) {
     const [books, setBooks] = useState([]);
     const location = useLocation();
@@ -20,7 +63,7 @@ export default function Books({ setTitles, setAllowDownloadAll, stopSpinner, sta
             fetch(url)
                 .then((response) => response.json())
                 .then((data) => {
-                    setBooks(data.collection);
+                    setBooks(serie ? completeSerie(data.collection) : data.collection);
                     setTitles([category, serie, book].filter(Boolean));
                     setAllowDownloadAll(Boolean(serie || book));
                     stopSpinner();
@@ -64,11 +107,10 @@ export default function Books({ setTitles, setAllowDownloadAll, stopSpinner, sta
         }
     }
 
-
     return (
         <div style={{ "textAlign": "center" }}>
             {books.map((book) => (
-                <Button variant="contained" key={book.name} onClick={() => nav(book.name)}
+                <Button variant="contained" key={book.name} onClick={() => !book.isMissing && nav(book.name)}
                     style={{ margin: 3, padding: 3 }}
                 >
                     <Card
