@@ -59,7 +59,7 @@
                 }
             }
 
-            return new BookContainer<Book>("", books);
+            return new BookContainer<Book>("", books.OrderBy(b => b.Name));
         }
 
         // public PageDetail GetDetail(string category, string book, string chapter, int page)
