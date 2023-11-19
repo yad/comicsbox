@@ -12,7 +12,7 @@ export default function Books({ setTitles, setAllowDownloadAll, stopSpinner, sta
     const navigate = useNavigate();
 
     useEffect(() => {
-        const [_, category, serie, book] = location.pathname.split('/');
+        const [/*_*/, category, serie, book] = location.pathname.split('/');
         if (category) {
             const url = `/api/book${location.pathname}`;
 
@@ -51,7 +51,7 @@ export default function Books({ setTitles, setAllowDownloadAll, stopSpinner, sta
 
     const nav = (current) => {
         const pathname = location.pathname.endsWith('/') ? location.pathname : `${location.pathname}/`;
-        const [_, category, serie, book] = pathname.split('/');
+        const [/*_*/, category, serie, /*book*/] = pathname.split('/');
 
         if (!category || !serie) {
             navigate(`${pathname}${current}`);
@@ -68,13 +68,13 @@ export default function Books({ setTitles, setAllowDownloadAll, stopSpinner, sta
     return (
         <div style={{ "textAlign": "center" }}>
             {books.map((book) => (
-                <Button variant="contained" item key={book.name} onClick={() => nav(book.name)}
+                <Button variant="contained" key={book.name} onClick={() => nav(book.name)}
                     style={{ margin: 3, padding: 3 }}
                 >
                     <Card
                         sx={{ width: book.isMain ? '333px' : '111px', height: book.isMain ? '441px' : '147px', display: 'flex', flexDirection: 'column' }}
                     >
-                        <img src={`/cache/thumbnails/${book.thumbnail}`}></img>
+                        <img alt={book.name} src={`/cache/thumbnails/${book.thumbnail}`}></img>
                     </Card>
                 </Button>
             ))}

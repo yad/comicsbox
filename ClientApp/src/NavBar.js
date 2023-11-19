@@ -22,11 +22,35 @@ export default function NavBar({ titles, allowDownloadAll, stopSpinner, startSpi
     }
   };
 
-  const download = () => {
+  const download = async () => {
+    const [/*_*/, /*_*/, /*_*/, /*category*/, serie, /*book*/] = link.split('/');
+
     startSpinner();
-    const [_, category, serie, book] = link.split('/');
-    saveAs(link, `${decodeURIComponent(serie)}.pdf`);
-    stopSpinner();
+
+    await fetch(link, { "method": "POST" })
+
+    const check = async (interval) => {
+      const response = await fetch(link, { "method": "GET" });
+      if (response.status === 204) {
+        // retry
+      }
+      else {
+        stopSpinner();
+        clearInterval(interval);
+        if (response.status === 200) {
+          const blob = await response.blob();
+          saveAs(blob, `${decodeURIComponent(serie)}.zip`);
+        } else {
+          throw new Error(response);
+        }
+      }
+    }
+
+    const interval = setInterval(async() => {
+      await check(interval);
+    }, 1000);
+
+    return () => clearInterval(interval);
   };
 
   useEffect(() => {
@@ -36,18 +60,18 @@ export default function NavBar({ titles, allowDownloadAll, stopSpinner, startSpi
   return (
     <AppBar position="relative">
       <Toolbar className="breadcrumb">
-        <IconButton color="inherit">
-          <BookIcon onClick={() => nav()} />
+        <IconButton color="inherit" onClick={() => nav()}>
+          <BookIcon />
         </IconButton>
         <ul>
           {titles.map((title) => (
-            <li key={title} variant="h6" color="inherit" noWrap onClick={() => nav(title)}>
+            <li key={title} variant="h6" color="inherit" onClick={() => nav(title)}>
               {decodeURIComponent(title)}
             </li>
           ))}
         </ul>
-        {allowDownloadAll && (<IconButton color="inherit">
-          <DownloadIcon onClick={() => download()} />
+        {allowDownloadAll && (<IconButton style={{"position": "absolute", "right": "24px"}} color="inherit" onClick={() => download()}>
+          <DownloadIcon />
         </IconButton>)}
       </Toolbar>
     </AppBar>

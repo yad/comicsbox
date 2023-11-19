@@ -14,6 +14,30 @@ public class DownloadController : ControllerBase
         _bookInfoService = bookInfoService;
     }
 
+    [HttpPost("{category}/{serie}")]
+    public IActionResult Post(string category, string serie)
+    {
+        var path = _bookInfoService.GetSeriePath(category, serie);
+        var zipPath = Path.Combine("wwwroot", "temp", $"{serie}.zip");
+        if (!System.IO.File.Exists(zipPath))
+        {
+            Task.Run(() => {
+                var tempPath = Path.Combine("wwwroot", "temp", $"{Guid.NewGuid()}.zip");
+
+                ZipFile.CreateFromDirectory(path, tempPath);
+
+                if (System.IO.File.Exists(zipPath))
+                {
+                    System.IO.File.Delete(zipPath);
+                }
+
+                System.IO.File.Move(tempPath, zipPath);
+            });
+        }
+
+        return Ok();
+    }
+
     [HttpGet("{category}/{serie}")]
     public IActionResult Get(string category, string serie)
     {
@@ -21,16 +45,7 @@ public class DownloadController : ControllerBase
         var zipPath = Path.Combine("wwwroot", "temp", $"{serie}.zip");
         if (!System.IO.File.Exists(zipPath))
         {
-            var tempPath = Path.Combine("wwwroot", "temp", $"{Guid.NewGuid()}.zip");
-
-            ZipFile.CreateFromDirectory(path, tempPath);
-
-            if (System.IO.File.Exists(zipPath))
-            {
-                System.IO.File.Delete(zipPath);
-            }
-
-            System.IO.File.Move(tempPath, zipPath);
+            return NoContent();
         }
 
         return File(System.IO.File.OpenRead(zipPath), "application/zip", Path.GetFileName(zipPath));
