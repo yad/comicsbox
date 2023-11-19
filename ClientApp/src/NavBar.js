@@ -35,11 +35,12 @@ export default function NavBar({ titles, allowDownloadAll, stopSpinner, startSpi
         setTimeout(check, 3000)
       }
       else {
-        stopSpinner();
         if (response.status === 200) {
           const blob = await response.blob();
+          stopSpinner();
           saveAs(blob, `${decodeURIComponent(serie)}.zip`);
         } else {
+          stopSpinner();
           throw new Error(response);
         }
       }
