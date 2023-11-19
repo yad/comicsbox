@@ -16,7 +16,7 @@ dotnet, download https://dotnet.microsoft.com/en-us/download/dotnet/7.0
 
 `dotnet --version`
 
-# Build`
+# Build
 
 `useradd --system --no-create-home comicsbox`
 
@@ -35,5 +35,15 @@ dotnet, download https://dotnet.microsoft.com/en-us/download/dotnet/7.0
 `sudo systemctl enable comicsbox.service`
 
 `sudo systemctl start comicsbox.service`
+
+`sudo systemctl status comicsbox.service`
+
+# Update
+
+`git pull`
+
+`sudo dotnet publish --runtime linux-arm --self-contained -o /opt/comicsbox`
+
+`sudo systemctl restart comicsbox.service`
 
 `sudo systemctl status comicsbox.service`
