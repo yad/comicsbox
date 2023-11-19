@@ -29,14 +29,13 @@ export default function NavBar({ titles, allowDownloadAll, stopSpinner, startSpi
 
     await fetch(link, { "method": "POST" })
 
-    const check = async (interval) => {
+    const check = async () => {
       const response = await fetch(link, { "method": "GET" });
       if (response.status === 204) {
-        // retry
+        setTimeout(check, 3000)
       }
       else {
         stopSpinner();
-        clearInterval(interval);
         if (response.status === 200) {
           const blob = await response.blob();
           saveAs(blob, `${decodeURIComponent(serie)}.zip`);
@@ -46,11 +45,7 @@ export default function NavBar({ titles, allowDownloadAll, stopSpinner, startSpi
       }
     }
 
-    const interval = setInterval(async() => {
-      await check(interval);
-    }, 1000);
-
-    return () => clearInterval(interval);
+    await check();
   };
 
   useEffect(() => {
@@ -70,7 +65,7 @@ export default function NavBar({ titles, allowDownloadAll, stopSpinner, startSpi
             </li>
           ))}
         </ul>
-        {allowDownloadAll && (<IconButton style={{"position": "absolute", "right": "24px"}} color="inherit" onClick={() => download()}>
+        {allowDownloadAll && (<IconButton style={{ "position": "absolute", "right": "24px" }} color="inherit" onClick={() => download()}>
           <DownloadIcon />
         </IconButton>)}
       </Toolbar>
