@@ -1,0 +1,16 @@
+[Unit]
+Description=Comics Box
+After=network.target
+
+[Service]
+User=comicsbox
+Group=comicsbox
+Type=simple
+WorkingDirectory=/opt/comicsbox
+ExecStart=dotnet comicsbox.dll
+TimeoutStopSec=20
+KillMode=process
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
