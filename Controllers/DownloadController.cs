@@ -24,7 +24,7 @@ public class DownloadController : ControllerBase
             Task.Run(() => {
                 var tempPath = Path.Combine("wwwroot", "temp", $"{Guid.NewGuid()}.zip");
 
-                ZipFile.CreateFromDirectory(path, tempPath);
+                ZipFile.CreateFromDirectory(path, tempPath, CompressionLevel.NoCompression, false);
 
                 if (System.IO.File.Exists(zipPath))
                 {
