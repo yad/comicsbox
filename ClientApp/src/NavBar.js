@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import AppBar from '@mui/material/AppBar';
-import BookIcon from '@mui/icons-material/Book';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
 import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
 import DownloadIcon from '@mui/icons-material/Download';
@@ -57,7 +57,7 @@ export default function NavBar({ titles, allowDownloadAll, stopSpinner, startSpi
     <AppBar position="relative">
       <Toolbar className="breadcrumb">
         <IconButton color="inherit" onClick={() => nav()}>
-          <BookIcon />
+          <MenuBookIcon />
         </IconButton>
         <ul>
           {titles.map((title) => (
