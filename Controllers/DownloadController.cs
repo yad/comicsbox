@@ -41,14 +41,13 @@ public class DownloadController : ControllerBase
     [HttpGet("{category}/{serie}")]
     public IActionResult Get(string category, string serie)
     {
-        var path = _bookInfoService.GetSeriePath(category, serie);
         var zipPath = Path.Combine("wwwroot", "temp", $"{serie}.zip");
         if (!System.IO.File.Exists(zipPath))
         {
             return NoContent();
         }
 
-        return File(System.IO.File.OpenRead(zipPath), "application/zip", Path.GetFileName(zipPath));
+        return Content($"/temp/{serie}.zip");
     }
 
     [HttpGet("{category}/{serie}/{book}")]

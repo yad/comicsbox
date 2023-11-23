@@ -36,9 +36,9 @@ export default function NavBar({ titles, allowDownloadAll, stopSpinner, startSpi
       }
       else {
         if (response.status === 200) {
-          const blob = await response.blob();
+          const link = await response.text();
           stopSpinner();
-          saveAs(blob, `${decodeURIComponent(serie)}.zip`);
+          saveAs(link, `${decodeURIComponent(serie)}.zip`);
         } else {
           stopSpinner();
           throw new Error(response);
