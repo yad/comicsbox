@@ -18,7 +18,7 @@ export default function NavBar({ titles, allowDownloadAll, stopSpinner, startSpi
     if (!title) {
       navigate("/");
     } else if (title !== titles[titles.length - 1]) {
-      navigate(`/${title}`);
+      navigate(`/${encodeURI(title)}`);
     }
   };
 
@@ -36,9 +36,8 @@ export default function NavBar({ titles, allowDownloadAll, stopSpinner, startSpi
       }
       else {
         if (response.status === 200) {
-          const link = await response.text();
           stopSpinner();
-          saveAs(link, `${decodeURIComponent(serie)}.zip`);
+          saveAs(`/temp/${serie}.zip`, `${decodeURI(serie)}.zip`);
         } else {
           stopSpinner();
           throw new Error(response);
@@ -62,7 +61,7 @@ export default function NavBar({ titles, allowDownloadAll, stopSpinner, startSpi
         <ul>
           {titles.map((title) => (
             <li key={title} variant="h6" color="inherit" onClick={() => nav(title)}>
-              {decodeURIComponent(title)}
+              {decodeURI(title)}
             </li>
           ))}
         </ul>

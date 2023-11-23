@@ -101,12 +101,12 @@ export default function Books({ setTitles, setAllowDownloadAll, stopSpinner, sta
         const [/*_*/, category, serie, /*book*/] = pathname.split('/');
 
         if (!category || !serie) {
-            navigate(`${pathname}${encodeURIComponent(current)}`);
+            navigate(`${pathname}${encodeURI(current)}`);
         } else {
             // temp download pdf
             const link = `/api/download/${category}/${serie}/${current}`;
             startSpinner();
-            saveAs(link, `${decodeURIComponent(serie)}.pdf`);
+            saveAs(link, `${decodeURI(serie)}.pdf`);
             stopSpinner();
         }
     }
