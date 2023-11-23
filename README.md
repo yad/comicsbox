@@ -4,13 +4,15 @@
 
 `sudo apt install nodejs npm git`
 
-dotnet, download https://dotnet.microsoft.com/en-us/download/dotnet/7.0
+dotnet, download https://dotnet.microsoft.com/en-us/download/dotnet/8.0
 
-`wget https://download.visualstudio.microsoft.com/download/pr/6d070d9e-6748-49b4-8ebb-cfd74c25b89c/530fb7c5244e9a1ac798820335c58c35/dotnet-sdk-7.0.404-linux-arm.tar.gz`
+`wget https://download.visualstudio.microsoft.com/download/pr/7ec1a911-afeb-47fa-a1d0-fa22cd980b32/157c20841cbf1811dd2a7a51bf4aaf88/dotnet-sdk-8.0.100-linux-arm.tar.gz`
+
+`sudo rm -rf /opt/dotnet`
 
 `sudo mkdir -p /opt/dotnet`
 
-`sudo tar -xf dotnet-sdk-7.0.404-linux-arm.tar.gz -C /opt/dotnet`
+`sudo tar -xf dotnet-sdk-8.0.100-linux-arm.tar.gz -C /opt/dotnet`
 
 `sudo ln -s /opt/dotnet/dotnet /usr/bin`
 
