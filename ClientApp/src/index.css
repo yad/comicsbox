@@ -31,7 +31,7 @@ body {
 .breadcrumb li::before {
   display: inline-block;
   margin: 0 .25rem;
-  content: "→";
+  content: "⇨";
   cursor: auto;
 }
 
