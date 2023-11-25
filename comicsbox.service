@@ -3,6 +3,7 @@ Description=Comics Box
 After=network.target
 
 [Service]
+Environment="ASPNETCORE_URLS=http://*:5000"
 User=comicsbox
 Group=comicsbox
 Type=simple
