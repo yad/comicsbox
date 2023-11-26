@@ -14,6 +14,7 @@ import { deepOrange, orange } from '@mui/material/colors';
 
 import NavBar from './NavBar';
 import Books from './Books';
+import Reader from './Reader';
 
 const defaultTheme = createTheme({
   palette: {
@@ -37,13 +38,19 @@ export default function App() {
   const router = createBrowserRouter([
     {
       path: "/:category?/:serie?/:book?",
-      element: <div>
+      element: <React.Fragment>
         <NavBar titles={titles} allowDownloadAll={allowDownloadAll} stopSpinner={stopSpinner} startSpinner={startSpinner}>
         </NavBar>
         <main>
           <Books setTitles={setTitles} setAllowDownloadAll={setAllowDownloadAll} stopSpinner={stopSpinner} startSpinner={startSpinner}></Books>
         </main>
-      </div>
+      </React.Fragment>
+    },
+    {
+      path: "/:category?/:serie?/:book?/:page",
+      element: <React.Fragment>
+        <Reader stopSpinner={stopSpinner} startSpinner={startSpinner}></Reader>
+      </React.Fragment>
     }
   ]);
 
@@ -53,7 +60,7 @@ export default function App() {
       <CssBaseline />
       <RouterProvider router={router} />
       <Backdrop
-        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1000 }}
         open={open}
       >
         <CircularProgress color="inherit" />

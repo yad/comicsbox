@@ -96,7 +96,7 @@ export default function Books({ setTitles, setAllowDownloadAll, stopSpinner, sta
         }
     }, [location]);
 
-    const nav = (current) => {
+    const nav = async(current) => {
         const pathname = location.pathname.endsWith('/') ? location.pathname : `${location.pathname}/`;
         const [/*_*/, category, serie, /*book*/] = pathname.split('/');
 
@@ -104,10 +104,11 @@ export default function Books({ setTitles, setAllowDownloadAll, stopSpinner, sta
             navigate(`${pathname}${encodeURI(current)}`);
         } else {
             // temp download pdf
-            const link = `/api/download/${category}/${serie}/${current}`;
-            startSpinner();
-            saveAs(link, `${decodeURI(serie)}.pdf`);
-            stopSpinner();
+            // const link = `/api/download/${category}/${serie}/${current}`;
+            // startSpinner();
+            // saveAs(link, `${decodeURI(serie)}.pdf`);
+            // stopSpinner();
+            navigate(`${pathname}${encodeURI(current)}/1`);
         }
     }
 
