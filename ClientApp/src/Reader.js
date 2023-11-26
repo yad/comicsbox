@@ -78,7 +78,8 @@ export default function Reader({ stopSpinner, startSpinner }) {
     };
 
     const getCardStyle = () => ({
-        "height": "100%"
+        height: "100%",
+        backgroundColor: "#424242"
     });
 
     const nav = (ev) => {
@@ -111,15 +112,15 @@ export default function Reader({ stopSpinner, startSpinner }) {
                 onClose={handleClose}
                 TransitionComponent={Transition}
             >
-                <div style={{ height: "100%", "textAlign": "center", backgroundColor: "#424242" }}>
+                <div style={{ "textAlign": "center", backgroundColor: "#424242" }}>
                     <Button
-                        style={{ margin: 1, padding: 1, height: "99.8%" }}
+                        style={{ height: "100vh" }}
                         onClick={nav}
                     >
                         <Card
                             sx={{ ...getCardStyle() }}
                         >
-                            <img src={img} style={{ maxWidth: "100%", minHeight: "100%", objectFit: "contain" }}></img>
+                            <img src={img} style={{ height: "100%", maxWidth: "100%", objectFit: "contain" }}></img>
                         </Card>
                     </Button>
                 </div>

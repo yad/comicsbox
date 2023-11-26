@@ -8,6 +8,7 @@ import {
 import CssBaseline from '@mui/material/CssBaseline';
 import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
+import GlobalStyles from '@mui/material/GlobalStyles';
 
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { deepOrange, orange } from '@mui/material/colors';
@@ -19,7 +20,7 @@ import Reader from './Reader';
 const defaultTheme = createTheme({
   palette: {
     primary: deepOrange,
-    secondary: orange,
+    secondary: orange
   }
 });
 
@@ -58,6 +59,11 @@ export default function App() {
   return (
     <ThemeProvider theme={defaultTheme}>
       <CssBaseline />
+      <GlobalStyles
+          styles={{
+            body: { backgroundColor: "#424242" },
+          }}
+      />
       <RouterProvider router={router} />
       <Backdrop
         sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1000 }}
