@@ -57,11 +57,5 @@ public class DownloadController : ControllerBase
         var pdfPath = Path.Combine(path, $"{book}.pdf");
         return File(System.IO.File.OpenRead(pdfPath), "application/pdf", $"{serie}_{Path.GetFileName(pdfPath)}");
     }
-
-    // [HttpGet("{category}/{book}/{chapter}/{page}")]
-    // public PageDetail Get(string category, string book, string chapter, int page)
-    // {
-    //     return _bookInfoService.GetDetail(category, book, chapter, page);
-    // }
 }
 

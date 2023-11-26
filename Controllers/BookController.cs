@@ -49,11 +49,5 @@ public class BookController : ControllerBase
 
         return cacheValue;
     }
-
-    // [HttpGet("{category}/{book}/{chapter}/{page}")]
-    // public PageDetail Get(string category, string book, string chapter, int page)
-    // {
-    //     return _bookInfoService.GetDetail(category, book, chapter, page);
-    // }
 }
 
