@@ -11,20 +11,26 @@ import CircularProgress from '@mui/material/CircularProgress';
 import GlobalStyles from '@mui/material/GlobalStyles';
 
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { deepOrange, orange } from '@mui/material/colors';
+import { deepOrange, red } from '@mui/material/colors';
 
 import NavBar from './NavBar';
 import Books from './Books';
 import Reader from './Reader';
 
-const defaultTheme = createTheme({
+const imgTheme = createTheme({
   palette: {
-    primary: deepOrange,
-    secondary: orange
+    primary: deepOrange
+  }
+});
+
+const pdfTheme = createTheme({
+  palette: {
+    primary: red
   }
 });
 
 export default function App() {
+  const [reader, setReader] = useState(localStorage.getItem("reader") || "img");
   const [titles, setTitles] = useState([]);
   const [allowDownloadAll, setAllowDownloadAll] = useState(false);
   const [open, setOpen] = React.useState(false);
@@ -40,10 +46,9 @@ export default function App() {
     {
       path: "/:category?/:serie?/:book?",
       element: <React.Fragment>
-        <NavBar titles={titles} allowDownloadAll={allowDownloadAll} stopSpinner={stopSpinner} startSpinner={startSpinner}>
-        </NavBar>
+        <NavBar titles={titles} allowDownloadAll={allowDownloadAll} reader={reader} setReader={setReader} stopSpinner={stopSpinner} startSpinner={startSpinner}></NavBar>
         <main>
-          <Books setTitles={setTitles} setAllowDownloadAll={setAllowDownloadAll} stopSpinner={stopSpinner} startSpinner={startSpinner}></Books>
+          <Books setTitles={setTitles} setAllowDownloadAll={setAllowDownloadAll} reader={reader} stopSpinner={stopSpinner} startSpinner={startSpinner}></Books>
         </main>
       </React.Fragment>
     },
@@ -57,7 +62,7 @@ export default function App() {
 
 
   return (
-    <ThemeProvider theme={defaultTheme}>
+    <ThemeProvider theme={reader === "img" ? imgTheme : pdfTheme}>
       <CssBaseline />
       <GlobalStyles
           styles={{
@@ -66,7 +71,7 @@ export default function App() {
       />
       <RouterProvider router={router} />
       <Backdrop
-        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1000 }}
+        sx={{ color: '#424242', zIndex: (theme) => theme.zIndex.drawer + 1000 }}
         open={open}
       >
         <CircularProgress color="inherit" />

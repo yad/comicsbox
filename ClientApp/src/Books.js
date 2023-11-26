@@ -52,7 +52,7 @@ const completeSerie = (books) => {
     return newBooks;
 };
 
-export default function Books({ setTitles, setAllowDownloadAll, stopSpinner, startSpinner }) {
+export default function Books({ setTitles, setAllowDownloadAll, stopSpinner, startSpinner, reader }) {
     const theme = useTheme();
     const [books, setBooks] = useState([]);
     const location = useLocation();
@@ -102,12 +102,13 @@ export default function Books({ setTitles, setAllowDownloadAll, stopSpinner, sta
 
         if (!category || !serie) {
             navigate(`${pathname}${encodeURI(current)}`);
-        } else {
-            // temp download pdf
-            // const link = `/api/download/${category}/${serie}/${current}`;
-            // startSpinner();
-            // saveAs(link, `${decodeURI(serie)}.pdf`);
-            // stopSpinner();
+        } else if (reader === "pdf") {
+            const link = `/api/download/${category}/${serie}/${current}`;
+            startSpinner();
+            saveAs(link, `${decodeURI(serie)}.pdf`);
+            stopSpinner();
+        }
+        else {
             navigate(`${pathname}${encodeURI(current)}/1`);
         }
     }
