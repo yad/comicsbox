@@ -29,6 +29,20 @@ namespace Comicsbox
             return GetPageN(firstPage);
         }
 
+        public void Extract(string path)
+        {
+            var lastPageNumber = GetLastPageNumber();
+            for (int i = 1; i <= lastPageNumber;  i++)
+            {
+                var pageContent = GetPageN(i);
+                var filePath = Path.Combine(path, $"{i}.jpg");
+                File.WriteAllBytes(filePath, pageContent);
+            }
+
+            var eofPath = Path.Combine(path, $"{lastPageNumber+1}.eof");
+            File.WriteAllText(eofPath, "");
+        }
+
         // public bool IsPageExists(int page)
         // {
         //     return GetPageN(page) != null;
@@ -62,7 +76,7 @@ namespace Comicsbox
                 }
             }
 
-            var resources = _pdfDocument.GetPage(1).GetResources();
+            var resources = _pdfDocument.GetPage(actualPageIndex).GetResources();
             foreach (var resource in resources.GetResourceNames())
             {
                 var pdfImage = resources.GetImage(resource);
@@ -106,20 +120,20 @@ namespace Comicsbox
             ((IDisposable)_pdfReader)?.Dispose();
         }
 
-        // public int GetLastPageNumber()
-        // {
-        //     int lastPageNumber = 0;
-        //     for (int actualPageIndex = 1; actualPageIndex <= _pdfReader.NumberOfPages; actualPageIndex++)
-        //     {
-        //         lastPageNumber++;
+        public int GetLastPageNumber()
+        {
+            int lastPageNumber = 0;
+            for (int actualPageIndex = 1; actualPageIndex <= _pdfDocument.GetNumberOfPages(); actualPageIndex++)
+            {
+                lastPageNumber++;
 
-        //         if (IsDoublePage(actualPageIndex))
-        //         {
-        //             lastPageNumber++;
-        //         }
-        //     }
+                if (IsDoublePage(actualPageIndex))
+                {
+                    lastPageNumber++;
+                }
+            }
 
-        //     return lastPageNumber;
-        // }
+            return lastPageNumber;
+        }
     }
 }
