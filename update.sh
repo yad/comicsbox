@@ -4,6 +4,8 @@ set -e
 
 git pull
 
+sudo systemctl stop comicsbox.service
+
 sudo dotnet publish --runtime linux-arm --self-contained -o /opt/comicsbox
 
 sudo chown -R comicsbox:comicsbox /opt/comicsbox/
