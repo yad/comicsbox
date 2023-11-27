@@ -47,7 +47,7 @@ public class DownloadController : ControllerBase
             return NoContent();
         }
 
-        return Content($"/temp/{serie}.zip");
+        return Ok();
     }
 
     [HttpGet("{category}/{serie}/{book}")]

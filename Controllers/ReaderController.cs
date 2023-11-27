@@ -51,6 +51,6 @@ public class ReaderController : ControllerBase
             return NoContent();
         }
 
-        return Content($"/temp/{category}/{serie}/{book}/{page}.jpg");
+        return Ok();
     }
 }

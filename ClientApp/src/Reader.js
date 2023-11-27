@@ -13,21 +13,15 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 export default function Reader({ stopSpinner, startSpinner }) {
     const [img, setImg] = useState(null);
-    const [lock, setLocked] = useState(false);
     const [open, setOpen] = useState(true);
     const location = useLocation();
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (lock) {
-            return
-        };
+        startSpinner();
 
         const [/*_*/, category, serie, book, page] = location.pathname.split('/');
         const link = `/api/reader/${category}/${serie}/${book}/${page}`;
-
-        setLocked(true);
-        startSpinner();
 
         fetch(link, { "method": "POST" })
             .then(async () => {
@@ -42,12 +36,9 @@ export default function Reader({ stopSpinner, startSpinner }) {
                     else {
                         if (response.status === 200) {
                             stopSpinner();
-                            setLocked(false);
                             setImg(`/temp/${category}/${serie}/${book}/${page}.jpg`);
-                            //   saveAs(`/temp/${serie}.zip`, `${decodeURI(serie)}.zip`);
                         } else {
                             stopSpinner();
-                            setLocked(false);
                             throw new Error(response);
                         }
                     }
@@ -57,17 +48,11 @@ export default function Reader({ stopSpinner, startSpinner }) {
             })
             .catch(() => {
                 stopSpinner();
-                setLocked(false);
             });
     }, [location]);
 
-    const handleClickOpen = () => {
-        setOpen(true);
-    };
-
     const handleClose = () => {
         stopSpinner();
-        setLocked(false);
 
         const parts = location.pathname.split('/');
         parts.pop(); // remove page
@@ -125,9 +110,9 @@ export default function Reader({ stopSpinner, startSpinner }) {
             >
                 <div style={{ "textAlign": "center", backgroundColor: "#424242" }}>
                     <Button style={{ height: "100vh" }} onClick={nav}>
-                        <Button style={{ ...getCloseStyle() }} onClick={handleClose}>
+                        {img && <Button style={{ ...getCloseStyle() }} onClick={handleClose}>
                             <CloseIcon />
-                        </Button>
+                        </Button>}
                         <Card sx={{ ...getCardStyle() }}>
                             <img src={img} style={{ height: "100%", maxWidth: "100%", objectFit: "contain" }}></img>
                         </Card>
