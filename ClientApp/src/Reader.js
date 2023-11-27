@@ -45,7 +45,7 @@ export default function Reader({ stopSpinner, startSpinner }) {
                         window.location.reload();
                     }
                     else if (response.status === 204) {
-                        setTimeout(check, 3000)
+                        setTimeout(check, 1000)
                     }
                     else {
                         if (response.status === 200) {

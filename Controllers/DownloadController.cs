@@ -58,4 +58,3 @@ public class DownloadController : ControllerBase
         return File(System.IO.File.OpenRead(pdfPath), "application/pdf", $"{serie}_{Path.GetFileName(pdfPath)}");
     }
 }
-

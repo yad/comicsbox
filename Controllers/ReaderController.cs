@@ -16,26 +16,20 @@ public class ReaderController : ControllerBase
     }
 
     [HttpPost("{category}/{serie}/{book}/{page}")]
-    public IActionResult Post(string category, string serie, string book, string page)
+    public IActionResult Post(string category, string serie, string book, int page)
     {
         var pdfPath = _bookInfoService.GetSerieBookPath(category, serie, book);
         var seriePath = Path.Combine("wwwroot", "temp", category, serie, book);
-        if (!System.IO.Directory.Exists(seriePath))
+        var file = Path.Combine(seriePath, $"{page}.jpg");
+        if (!System.IO.File.Exists(file))
         {
             Task.Run(() => {
-                var tempPath = Path.Combine("wwwroot", "temp", Guid.NewGuid().ToString());
-                Directory.CreateDirectory(tempPath);
-
-                _pdfReaderService.LoadFile(pdfPath, isReversed: category.ToLower() == "mangas").Extract(tempPath);
-
-                if (System.IO.Directory.Exists(seriePath))
+                if (!System.IO.Directory.Exists(seriePath))
                 {
-                    System.IO.Directory.Delete(seriePath, true);
+                    Directory.CreateDirectory(seriePath);
                 }
 
-                Directory.CreateDirectory(seriePath);
-                Directory.Delete(seriePath);
-                System.IO.Directory.Move(tempPath, seriePath);
+                _pdfReaderService.LoadFile(pdfPath, isReversed: category.ToLower() == "mangas").Extract(seriePath, page);
             });
         }
 
@@ -43,7 +37,7 @@ public class ReaderController : ControllerBase
     }
 
     [HttpGet("{category}/{serie}/{book}/{page}")]
-    public IActionResult Get(string category, string serie, string book, string page)
+    public IActionResult Get(string category, string serie, string book, int page)
     {
         var jpgPath = Path.Combine("wwwroot", "temp", category, serie, book, $"{page}.jpg");
         if (!System.IO.File.Exists(jpgPath))
@@ -59,13 +53,4 @@ public class ReaderController : ControllerBase
 
         return Content($"/temp/{category}/{serie}/{book}/{page}.jpg");
     }
-
-    [HttpGet("{category}/{serie}/{book}")]
-    public IActionResult Get(string category, string serie, string book)
-    {
-        var path = _bookInfoService.GetSeriePath(category, serie);
-        var pdfPath = Path.Combine(path, $"{book}.pdf");
-        return File(System.IO.File.OpenRead(pdfPath), "application/pdf", $"{serie}_{Path.GetFileName(pdfPath)}");
-    }
 }
-

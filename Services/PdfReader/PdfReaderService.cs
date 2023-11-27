@@ -29,24 +29,36 @@ namespace Comicsbox
             return GetPageN(firstPage);
         }
 
-        public void Extract(string path)
+        public void Extract(string path, int page)
         {
             var lastPageNumber = GetLastPageNumber();
-            for (int i = 1; i <= lastPageNumber;  i++)
+
+            // fast extract current page
+            if (page <= lastPageNumber)
             {
-                var pageContent = GetPageN(i);
-                var filePath = Path.Combine(path, $"{i}.jpg");
-                File.WriteAllBytes(filePath, pageContent);
+                var filePath = Path.Combine(path, $"{page}.jpg");
+                if (!File.Exists(filePath))
+                {
+                    var pageContent = GetPageN(page);
+                    File.WriteAllBytes(filePath, pageContent);
+                }
             }
 
-            var eofPath = Path.Combine(path, $"{lastPageNumber+1}.eof");
+            // extract all pages
+            for (int i = 1; i <= lastPageNumber; i++)
+            {
+                var filePath = Path.Combine(path, $"{i}.jpg");
+                if (!File.Exists(filePath))
+                {
+                    var pageContent = GetPageN(i);
+                    File.WriteAllBytes(filePath, pageContent);
+                }
+            }
+
+            // finished create flag
+            var eofPath = Path.Combine(path, $"{lastPageNumber + 1}.eof");
             File.WriteAllText(eofPath, "");
         }
-
-        // public bool IsPageExists(int page)
-        // {
-        //     return GetPageN(page) != null;
-        // }
 
         private byte[] GetPageN(int page)
         {
@@ -54,7 +66,7 @@ namespace Comicsbox
             int virtualPageIndex = 0;
             ImageSide side = ImageSide.Both;
 
-            for ( ; actualPageIndex <= _pdfDocument.GetNumberOfPages(); actualPageIndex++)
+            for (; actualPageIndex <= _pdfDocument.GetNumberOfPages(); actualPageIndex++)
             {
                 var isDoublePage = IsDoublePage(actualPageIndex);
 
