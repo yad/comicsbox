@@ -82,7 +82,7 @@ namespace Comicsbox
                     virtualPageIndex++;
                     if (page == virtualPageIndex)
                     {
-                        side = ImageSide.Right;
+                        side = _isReversed ? ImageSide.Left : ImageSide.Right;
                         break;
                     }
                 }
