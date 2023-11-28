@@ -6,6 +6,7 @@ import Card from '@mui/material/Card';
 import Dialog from '@mui/material/Dialog';
 import Slide from '@mui/material/Slide';
 import CloseIcon from '@mui/icons-material/Close';
+import { saveCompleted, saveProgress } from "./progress";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
@@ -28,6 +29,7 @@ export default function Reader({ stopSpinner, startSpinner }) {
                 const check = async () => {
                     const response = await fetch(link, { "method": "GET" });
                     if (response.status === 404) {
+                        saveCompleted(category, serie, book, page);
                         handleClose();
                     }
                     else if (response.status === 204) {
@@ -36,6 +38,7 @@ export default function Reader({ stopSpinner, startSpinner }) {
                     else {
                         if (response.status === 200) {
                             stopSpinner();
+                            saveProgress(category, serie, book, page);
                             setImg(`/temp/${category}/${serie}/${book}/${page}.jpg`);
                         } else {
                             stopSpinner();

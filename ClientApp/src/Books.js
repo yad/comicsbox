@@ -4,6 +4,9 @@ import Card from '@mui/material/Card';
 import Button from '@mui/material/Button';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from "@mui/material/styles";
+import { getCurrentPage, getBookStatus } from "./progress";
+import DoneIcon from '@mui/icons-material/Done';
+import PendingIcon from '@mui/icons-material/Pending';
 
 import { saveAs } from "file-saver";
 
@@ -15,7 +18,7 @@ const getBookId = (name) => {
     return Number.parseInt(name);
 };
 
-const completeSerie = (books) => {
+const completeSerie = (reader, category, serie, books) => {
     const newBooks = [...books];
 
     let firstBookId = -1;
@@ -49,7 +52,10 @@ const completeSerie = (books) => {
         }
     }
 
-    return newBooks;
+    return (reader === "img") ? newBooks.map((book) => ({
+        ...book,
+        ...getBookStatus(category, serie, book.name)
+    })) : newBooks;
 };
 
 export default function Books({ setTitles, setAllowDownloadAll, stopSpinner, startSpinner, reader }) {
@@ -67,7 +73,7 @@ export default function Books({ setTitles, setAllowDownloadAll, stopSpinner, sta
             fetch(url)
                 .then((response) => response.json())
                 .then((data) => {
-                    setBooks(serie ? completeSerie(data.collection) : data.collection);
+                    setBooks(serie ? completeSerie(reader, category, serie, data.collection) : data.collection);
                     setTitles([category, serie, book].filter(Boolean));
                     setAllowDownloadAll(Boolean(serie || book));
                     stopSpinner();
@@ -96,7 +102,7 @@ export default function Books({ setTitles, setAllowDownloadAll, stopSpinner, sta
         }
     }, [location]);
 
-    const nav = async(current) => {
+    const nav = async (current) => {
         const pathname = location.pathname.endsWith('/') ? location.pathname : `${location.pathname}/`;
         const [/*_*/, category, serie, /*book*/] = pathname.split('/');
 
@@ -109,7 +115,7 @@ export default function Books({ setTitles, setAllowDownloadAll, stopSpinner, sta
             stopSpinner();
         }
         else {
-            navigate(`${pathname}${encodeURI(current)}/1`);
+            navigate(`${pathname}${encodeURI(current)}/${getCurrentPage(category, serie, current)}`);
         }
     }
 
@@ -168,10 +174,15 @@ export default function Books({ setTitles, setAllowDownloadAll, stopSpinner, sta
                     style={{ margin: 3, padding: 3 }}
                 >
                     <Card
-                        sx={{...getCardStyle(book)}}
+                        sx={{ ...getCardStyle(book) }}
                     >
-                        <img alt={book.name} style={{...getThumbnailStyle(book)}} src={`/cache/thumbnails/${book.thumbnail}`}></img>
-                        <div style={{...getLegendStyle(book)}}>{book.name}{book.isMissing ? " - volume manquant" : ""}</div>
+                        <img alt={book.name} style={{ ...getThumbnailStyle(book) }} src={`/cache/thumbnails/${book.thumbnail}`}></img>
+                        <div style={{ ...getLegendStyle(book) }}>
+                            {book.name}
+                            {book.isMissing ? " - volume manquant" : ""}
+                        </div>
+                        {book.isCompleted && <DoneIcon style={{ position: "absolute", bottom: 5, right: 5, color: "#fff" }} />}
+                        {(!book.isCompleted && book.isStarted) && <PendingIcon style={{ position: "absolute", bottom: 5, right: 5, color: "#fff" }} />}
                     </Card>
                 </Button>
             ))}
