@@ -1,24 +1,34 @@
-﻿namespace Comicsbox
+﻿using Microsoft.Extensions.Caching.Memory;
+
+namespace Comicsbox
 {
     public class BookInfoService
     {
+        private readonly IMemoryCache _memoryCache;
         private readonly IConfiguration _configuration;
         private readonly ThumbnailProvider _thumbnailProvider;
 
-        public BookInfoService(IConfiguration configuration, ThumbnailProvider thumbnailProvider)
+        public BookInfoService(IMemoryCache memoryCache, IConfiguration configuration, ThumbnailProvider thumbnailProvider)
         {
+            _memoryCache = memoryCache;
             _configuration = configuration;
             _thumbnailProvider = thumbnailProvider;
         }
 
-        public BookContainer<Book> GetBookList(string category, string serie)
+        public BookContainer<Book> GetBookList(string category, string serie = "", bool resetCache = false)
         {
-            return BuildBookInfo(category, serie);
-        }
+            var cacheKey = $"{category}-{serie}";
+            if (resetCache || !_memoryCache.TryGetValue(cacheKey, out BookContainer<Book> cacheValue))
+            {
+                cacheValue = BuildBookInfo(category, serie);
 
-        public BookContainer<Book> GetBookThumbnails(string category, string serie)
-        {
-            return BuildBookInfo(category, serie);
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetSlidingExpiration(TimeSpan.FromHours(1));
+
+                _memoryCache.Set(cacheKey, cacheValue, cacheEntryOptions);
+            }
+
+            return cacheValue;
         }
 
         public string GetSeriePath(string category, string serie)
