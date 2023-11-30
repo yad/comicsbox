@@ -27,7 +27,19 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = ctx =>
+    {
+        string path = ctx.File.PhysicalPath;
+        string ext = Path.GetExtension(path);
+        if (ext == ".jpg")
+        {
+            TimeSpan maxAge = new TimeSpan(7, 0, 0, 0);
+            ctx.Context.Response.Headers.Append("Cache-Control", "max-age=" + maxAge.TotalSeconds.ToString("0"));
+        }
+    }
+});
 app.UseRouting();
 
 app.MapControllerRoute(
