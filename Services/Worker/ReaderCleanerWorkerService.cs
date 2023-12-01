@@ -7,20 +7,23 @@
             await DoWork(stoppingToken);
         }
 
-        private static IEnumerable<string> GetFinalDirectories(string root)
+        private static IEnumerable<string> GetFinalDirectories(string root, string current)
         {
             List<string> result = new List<string>();
 
-            var dirs = Directory.GetDirectories(root);
+            var dirs = Directory.GetDirectories(current);
             if (!dirs.Any())
             {
-                result.Add(root);
+                if (current != root)
+                {
+                    result.Add(current);
+                }
             }
             else
             {
                 foreach(var dir in dirs)
                 {
-                    result.AddRange(GetFinalDirectories(dir));
+                    result.AddRange(GetFinalDirectories(root, dir));
                 }
             }
 
@@ -32,7 +35,7 @@
             var tempPath = Path.Combine("wwwroot", "temp");
             while (!stoppingToken.IsCancellationRequested)
             {
-                var dirs = await Task.Run(() => GetFinalDirectories(tempPath));
+                var dirs = await Task.Run(() => GetFinalDirectories(tempPath, tempPath));
                 Console.WriteLine($"ReaderCleanerWorker: detected {dirs.Count()} directories in temp directory.");
 
                 if (stoppingToken.IsCancellationRequested)
