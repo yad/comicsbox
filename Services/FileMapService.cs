@@ -17,10 +17,10 @@ namespace Comicsbox
 
         public void Init()
         {
-            GetFileMapAsync(true).GetAwaiter().GetResult();
+            GetFileInfoMapAsync(true).GetAwaiter().GetResult();
         }
 
-        public async Task<string[]> GetFileMapAsync(bool allowRefreshCache = false)
+        public async Task<FileInfo[]> GetFileInfoMapAsync(bool allowRefreshCache = false)
         {
             string cacheKey = "fileMap";
 
@@ -37,11 +37,12 @@ namespace Comicsbox
                 _lastAccessTimeUtc = lastAccessTimeUtc;
             }
 
-            if (resetCache || !_memoryCache.TryGetValue(cacheKey, out string[]? cacheValue))
+            if (resetCache || !_memoryCache.TryGetValue(cacheKey, out FileInfo[]? cacheValue))
             {
+                DateTime now = DateTime.UtcNow;
                 Console.WriteLine("FileMap: Cache is updating...");
-                cacheValue = await Task.Run(() => Directory.GetFiles(basePath, "*.pdf", SearchOption.AllDirectories).Order().ToArray());
-                Console.WriteLine("FileMap: Cache is updated.");
+                cacheValue = await Task.Run(() => Directory.GetFiles(basePath, "*.pdf", SearchOption.AllDirectories).Select(f => new FileInfo(f)).OrderBy(f => f.FullName).ToArray());
+                Console.WriteLine($"FileMap: Cache is updated  in {(DateTime.UtcNow - now).Seconds} seconds.");
 
                 _memoryCache.Set(cacheKey, cacheValue);
             }
@@ -51,8 +52,8 @@ namespace Comicsbox
 
         public async Task<string[]> GetDirectoryMapAsync(bool allowRefreshCache = false)
         {
-            var files = await GetFileMapAsync(allowRefreshCache);
-            return files.Select(Path.GetDirectoryName).Distinct().ToArray()!;
+            var files = await GetFileInfoMapAsync(allowRefreshCache);
+            return files.Select(f => f.DirectoryName).Distinct().ToArray()!;
         }
     }
 }

@@ -22,7 +22,7 @@
             Console.WriteLine($"ThumbnailWorker: initializing...");
             while (!stoppingToken.IsCancellationRequested)
             {
-                var files = await _fileMapService.GetFileMapAsync();
+                var files = await _fileMapService.GetFileInfoMapAsync();
                 Console.WriteLine($"ThumbnailWorker: detected {files.Count()} pdf files.");
 
                 if (stoppingToken.IsCancellationRequested)
@@ -37,9 +37,9 @@
                         break;
                     }
 
-                    var category = Path.GetFileName(Path.GetDirectoryName(Path.GetDirectoryName(file))!).ToLower();
+                    var category = Path.GetFileName(Path.GetDirectoryName(file.DirectoryName)!).ToLower();
                     var isReversed = category == "mangas";
-                    await Task.Run(() => _thumbnailProvider.ProcessFile(file, isReversed), stoppingToken);
+                    await Task.Run(() => _thumbnailProvider.ProcessFile(file.FullName, isReversed), stoppingToken);
                 }
 
                 if (stoppingToken.IsCancellationRequested)

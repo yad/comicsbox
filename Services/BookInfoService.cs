@@ -49,7 +49,7 @@ namespace Comicsbox
         {
             var path = GetSeriePath(category, serie);
 
-            var files = await _fileMapService.GetFileMapAsync();
+            var files = await _fileMapService.GetFileInfoMapAsync();
 
             List<Book> books = new List<Book>();
 
@@ -57,12 +57,12 @@ namespace Comicsbox
             {
                 foreach (var file in files)
                 {
-                    var currentCategory = Path.GetFileName(Path.GetDirectoryName(Path.GetDirectoryName(file)))!;
-                    var currentSerie = Path.GetFileName(Path.GetDirectoryName(file))!;
+                    var currentCategory = Path.GetFileName(Path.GetDirectoryName(file.DirectoryName))!;
+                    var currentSerie = Path.GetFileName(file.DirectoryName)!;
 
                     if (category == currentCategory && !books.Any(b => b.Name == currentSerie))
                     {
-                        var thumbnail = _thumbnailProvider.GetThumbnailFileName(file);
+                        var thumbnail = _thumbnailProvider.GetThumbnailFileName(file.FullName);
                         books.Add(new Book(currentSerie, thumbnail));
                     }
                 }
@@ -71,13 +71,13 @@ namespace Comicsbox
             {
                 foreach (var file in files)
                 {
-                    var currentCategory = Path.GetFileName(Path.GetDirectoryName(Path.GetDirectoryName(file)))!;
-                    var currentSerie = Path.GetFileName(Path.GetDirectoryName(file))!;
+                    var currentCategory = Path.GetFileName(Path.GetDirectoryName(file.DirectoryName))!;
+                    var currentSerie = Path.GetFileName(file.DirectoryName)!;
 
                     if (category == currentCategory && serie == currentSerie)
                     {
-                        var book = Path.GetFileNameWithoutExtension(file);
-                        var thumbnail = _thumbnailProvider.GetThumbnailFileName(file);
+                        var book = Path.GetFileNameWithoutExtension(file.FullName);
+                        var thumbnail = _thumbnailProvider.GetThumbnailFileName(file.FullName);
                         books.Add(new Book(book, thumbnail));
                     }
                 }
