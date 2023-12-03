@@ -17,7 +17,7 @@ namespace Comicsbox
             _thumbnailProvider = thumbnailProvider;
         }
 
-        public async Task<BookContainer<Book>> GetBookListAsync(string category, string serie = "", bool resetCache = false)
+        public async Task<BookContainer<Book>> GetBookListAsync(string category = "", string serie = "", bool resetCache = false)
         {
             var cacheKey = $"{category}-{serie}";
             if (resetCache || !_memoryCache.TryGetValue(cacheKey, out BookContainer<Book>? cacheValue))
@@ -60,10 +60,24 @@ namespace Comicsbox
                     var currentCategory = Path.GetFileName(Path.GetDirectoryName(file.DirectoryName))!;
                     var currentSerie = Path.GetFileName(file.DirectoryName)!;
 
+                    if (!books.Any(b => b.Name == currentSerie))
+                    {
+                        var thumbnail = _thumbnailProvider.GetThumbnailFileName(file.FullName);
+                        books.Add(new Book(currentSerie, currentCategory, thumbnail));
+                    }
+                }
+            }
+            else if (string.IsNullOrEmpty(serie))
+            {
+                foreach (var file in files)
+                {
+                    var currentCategory = Path.GetFileName(Path.GetDirectoryName(file.DirectoryName))!;
+                    var currentSerie = Path.GetFileName(file.DirectoryName)!;
+
                     if (category == currentCategory && !books.Any(b => b.Name == currentSerie))
                     {
                         var thumbnail = _thumbnailProvider.GetThumbnailFileName(file.FullName);
-                        books.Add(new Book(currentSerie, thumbnail));
+                        books.Add(new Book(currentSerie, currentCategory, thumbnail));
                     }
                 }
             }
@@ -78,7 +92,7 @@ namespace Comicsbox
                     {
                         var book = Path.GetFileNameWithoutExtension(file.FullName);
                         var thumbnail = _thumbnailProvider.GetThumbnailFileName(file.FullName);
-                        books.Add(new Book(book, thumbnail));
+                        books.Add(new Book(book, currentCategory, thumbnail));
                     }
                 }
             }

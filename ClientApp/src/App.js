@@ -16,6 +16,7 @@ import { deepOrange, red } from '@mui/material/colors';
 import NavBar from './NavBar';
 import Books from './Books';
 import Reader from './Reader';
+import Search from './Search';
 
 const imgTheme = createTheme({
   palette: {
@@ -43,6 +44,15 @@ export default function App() {
   };
 
   const router = createBrowserRouter([
+    {
+      path: "/search/",
+      element: <React.Fragment>
+        <NavBar titles={titles} allowDownloadAll={allowDownloadAll} reader={reader} setReader={setReader} stopSpinner={stopSpinner} startSpinner={startSpinner}></NavBar>
+        <main>
+          <Search stopSpinner={stopSpinner} startSpinner={startSpinner}></Search>
+        </main>
+      </React.Fragment>
+    },
     {
       path: "/:category?/:serie?/:book?",
       element: <React.Fragment>

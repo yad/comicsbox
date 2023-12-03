@@ -91,6 +91,14 @@ export default function Books({ setTitles, setAllowDownloadAll, stopSpinner, sta
         else {
             setBooks([
                 {
+                    "name": "Recherche 🔍",
+                    "thumbnail": "Search.jpg",
+                    "onClick": () => {
+                        navigate("/search/");
+                        window.location.reload();
+                    }
+                },
+                {
                     "name": "BD",
                     "thumbnail": "BD.jpg"
                 },
@@ -180,7 +188,7 @@ export default function Books({ setTitles, setAllowDownloadAll, stopSpinner, sta
     return (
         <div style={{ "textAlign": "center" }}>
             {books.map((book) => (
-                <Button variant="contained" key={book.name} onClick={() => !book.isMissing && nav(book.name)}
+                <Button variant="contained" key={book.name} onClick={() => book.onClick ? book.onClick() : (!book.isMissing && nav(book.name))}
                     style={{ margin: 3, padding: 3 }}
                 >
                     <Card
