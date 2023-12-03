@@ -19,8 +19,6 @@
 
         private async Task DoWork(CancellationToken stoppingToken)
         {
-            await Task.Delay(5 * 60 * 1000, stoppingToken);
-
             while (!stoppingToken.IsCancellationRequested)
             {
                 var files = await _fileMapService.GetFileMapAsync();

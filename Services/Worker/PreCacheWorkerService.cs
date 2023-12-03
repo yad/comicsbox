@@ -21,7 +21,7 @@
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                var dirs = await _fileMapService.GetDirectoryMapAsync();
+                var dirs = await _fileMapService.GetDirectoryMapAsync(true);
                 Console.WriteLine($"PreCacheWorker: detected {dirs.Count()} directories.");
 
                 if (stoppingToken.IsCancellationRequested)

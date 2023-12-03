@@ -64,7 +64,7 @@ export default function Books({ setTitles, setAllowDownloadAll, stopSpinner, sta
     const location = useLocation();
     const navigate = useNavigate();
 
-    useEffect(() => {
+    const check = async () => {
         const [/*_*/, category, serie, book] = location.pathname.split('/');
         if (category) {
             const url = `/api/book${location.pathname}`;
@@ -76,13 +76,13 @@ export default function Books({ setTitles, setAllowDownloadAll, stopSpinner, sta
                     const collection = serie ? completeSerie(reader, category, serie, data.collection) : data.collection;
 
                     if (collection.length === 0) {
-                        // TODO loading...
+                        setTimeout(check, 3000);
+                    } else {
+                        setBooks(collection);
+                        setTitles([category, serie, book].filter(Boolean));
+                        setAllowDownloadAll(Boolean(serie || book));
+                        stopSpinner();
                     }
-
-                    setBooks(collection);
-                    setTitles([category, serie, book].filter(Boolean));
-                    setAllowDownloadAll(Boolean(serie || book));
-                    stopSpinner();
                 })
                 .catch(() => {
                     stopSpinner();
@@ -106,6 +106,10 @@ export default function Books({ setTitles, setAllowDownloadAll, stopSpinner, sta
             setTitles([]);
             setAllowDownloadAll(false);
         }
+    }
+
+    useEffect(() => {
+        check();
     }, [location]);
 
     const nav = async (current) => {

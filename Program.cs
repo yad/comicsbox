@@ -23,6 +23,8 @@ builder.Services.AddHostedService<ZipCleanerWorkerService>();
 
 var app = builder.Build();
 
+app.Services.GetService<FileMapService>().Init();
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseHsts();
