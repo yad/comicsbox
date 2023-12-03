@@ -15,15 +15,15 @@ public class BookController : ControllerBase
     }
 
     [HttpGet("{category}")]
-    public BookContainer<Book> Get(string category)
+    public Task<BookContainer<Book>> Get(string category)
     {
-        return _bookInfoService.GetBookList(category);
+        return _bookInfoService.GetBookListAsync(category);
     }
 
     [HttpGet("{category}/{serie}")]
-    public BookContainer<Book> Get(string category, string serie)
+    public Task<BookContainer<Book>> Get(string category, string serie)
     {
-        return _bookInfoService.GetBookList(category, serie);
+        return _bookInfoService.GetBookListAsync(category, serie);
     }
 }
 

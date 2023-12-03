@@ -22,7 +22,7 @@
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                var dirs = await _fileMapService.GetDirectoryMapAsync(stoppingToken);
+                var dirs = await _fileMapService.GetDirectoryMapAsync();
                 Console.WriteLine($"PreCacheWorker: detected {dirs.Count()} directories.");
 
                 if (stoppingToken.IsCancellationRequested)
@@ -39,12 +39,12 @@
                         break;
                     }
 
-                    var category = Path.GetFileName(Path.GetDirectoryName(dir));
+                    var category = Path.GetFileName(Path.GetDirectoryName(dir))!;
                     var serie = Path.GetFileName(dir);
 
                     categories.Add(category);
 
-                    await Task.Run(() => _bookInfoService.GetBookList(category, serie, true), stoppingToken);
+                    await _bookInfoService.GetBookListAsync(category, serie, true);
                 }
 
                 if (stoppingToken.IsCancellationRequested)
@@ -59,7 +59,7 @@
                         break;
                     }
 
-                    await Task.Run(() => _bookInfoService.GetBookList(category, "", true), stoppingToken);
+                    await _bookInfoService.GetBookListAsync(category, "", true);
                 }
 
                 if (stoppingToken.IsCancellationRequested)

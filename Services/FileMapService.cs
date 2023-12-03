@@ -15,7 +15,7 @@ namespace Comicsbox
             _configuration = configuration;
         }
 
-        public async Task<string[]> GetFileMapAsync(CancellationToken stoppingToken)
+        public async Task<string[]> GetFileMapAsync()
         {
             string cacheKey = "fileMap";
 
@@ -32,7 +32,11 @@ namespace Comicsbox
 
             if (!_memoryCache.TryGetValue(cacheKey, out string[] cacheValue))
             {
-                cacheValue = await Task.Run(() => Directory.GetFiles(basePath, "*.pdf", SearchOption.AllDirectories), stoppingToken);
+                // "lock" avoid multiple caching
+                _memoryCache.Set(cacheKey, Array.Empty<string>());
+
+                Console.WriteLine("File map is caching ...");
+                cacheValue = await Task.Run(() => Directory.GetFiles(basePath, "*.pdf", SearchOption.AllDirectories).Order().ToArray());
 
                 _memoryCache.Set(cacheKey, cacheValue);
             }
@@ -40,9 +44,9 @@ namespace Comicsbox
             return cacheValue;
         }
 
-        public async Task<string[]> GetDirectoryMapAsync(CancellationToken stoppingToken)
+        public async Task<string[]> GetDirectoryMapAsync()
         {
-            var files = await GetFileMapAsync(stoppingToken);
+            var files = await GetFileMapAsync();
             return files.Select(Path.GetDirectoryName).Distinct().ToArray()!;
         }
     }

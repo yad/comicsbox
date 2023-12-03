@@ -73,7 +73,13 @@ export default function Books({ setTitles, setAllowDownloadAll, stopSpinner, sta
             fetch(url)
                 .then((response) => response.json())
                 .then((data) => {
-                    setBooks(serie ? completeSerie(reader, category, serie, data.collection) : data.collection);
+                    const collection = serie ? completeSerie(reader, category, serie, data.collection) : data.collection;
+
+                    if (collection.length === 0) {
+                        // TODO loading...
+                    }
+
+                    setBooks(collection);
                     setTitles([category, serie, book].filter(Boolean));
                     setAllowDownloadAll(Boolean(serie || book));
                     stopSpinner();

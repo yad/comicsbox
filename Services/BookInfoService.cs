@@ -6,21 +6,23 @@ namespace Comicsbox
     {
         private readonly IMemoryCache _memoryCache;
         private readonly IConfiguration _configuration;
+        private readonly FileMapService _fileMapService;
         private readonly ThumbnailProvider _thumbnailProvider;
 
-        public BookInfoService(IMemoryCache memoryCache, IConfiguration configuration, ThumbnailProvider thumbnailProvider)
+        public BookInfoService(IMemoryCache memoryCache, IConfiguration configuration, FileMapService fileMapService, ThumbnailProvider thumbnailProvider)
         {
             _memoryCache = memoryCache;
             _configuration = configuration;
+            _fileMapService = fileMapService;
             _thumbnailProvider = thumbnailProvider;
         }
 
-        public BookContainer<Book> GetBookList(string category, string serie = "", bool resetCache = false)
+        public async Task<BookContainer<Book>> GetBookListAsync(string category, string serie = "", bool resetCache = false)
         {
             var cacheKey = $"{category}-{serie}";
             if (resetCache || !_memoryCache.TryGetValue(cacheKey, out BookContainer<Book> cacheValue))
             {
-                cacheValue = BuildBookInfo(category, serie);
+                cacheValue = await BuildBookInfoAsync(category, serie);
 
                 var cacheEntryOptions = new MemoryCacheEntryOptions()
                     .SetSlidingExpiration(TimeSpan.FromHours(1));
@@ -43,34 +45,41 @@ namespace Comicsbox
             return Path.Combine(basePath, category, serie, $"{book}.pdf");
         }
 
-        private BookContainer<Book> BuildBookInfo(string category, string serie)
+        private async Task<BookContainer<Book>> BuildBookInfoAsync(string category, string serie)
         {
             var path = GetSeriePath(category, serie);
+
+            var files = await _fileMapService.GetFileMapAsync();
 
             List<Book> books = new List<Book>();
 
             if (string.IsNullOrEmpty(serie))
             {
-                foreach (var dir in Directory.GetDirectories(path))
+                foreach (var file in files)
                 {
-                    serie = Path.GetFileName(dir);
-                    var file = Directory.GetFiles(dir).Order().FirstOrDefault(f => Path.GetExtension(f) == ".pdf");
-                    var thumbnail = "";
-                    if (file != null)
-                    {
-                        thumbnail = _thumbnailProvider.GetThumbnailFileName(file);
-                    }
+                    var currentCategory = Path.GetFileName(Path.GetDirectoryName(Path.GetDirectoryName(file)))!;
+                    var currentSerie = Path.GetFileName(Path.GetDirectoryName(file))!;
 
-                    books.Add(new Book(serie, thumbnail));
+                    if (category == currentCategory && !books.Any(b => b.Name == currentSerie))
+                    {
+                        var thumbnail = _thumbnailProvider.GetThumbnailFileName(file);
+                        books.Add(new Book(currentSerie, thumbnail));
+                    }
                 }
             }
             else
             {
-                foreach (var file in Directory.GetFiles(path))
+                foreach (var file in files)
                 {
-                    var book = Path.GetFileNameWithoutExtension(file);
-                    var thumbnail = _thumbnailProvider.GetThumbnailFileName(file);
-                    books.Add(new Book(book, thumbnail));
+                    var currentCategory = Path.GetFileName(Path.GetDirectoryName(Path.GetDirectoryName(file)))!;
+                    var currentSerie = Path.GetFileName(Path.GetDirectoryName(file))!;
+
+                    if (category == currentCategory && serie == currentSerie)
+                    {
+                        var book = Path.GetFileNameWithoutExtension(file);
+                        var thumbnail = _thumbnailProvider.GetThumbnailFileName(file);
+                        books.Add(new Book(book, thumbnail));
+                    }
                 }
             }
 
