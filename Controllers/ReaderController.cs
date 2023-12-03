@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Threading.Channels;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Comicsbox.Controllers;
 
@@ -6,11 +7,15 @@ namespace Comicsbox.Controllers;
 [Route("api/[controller]")]
 public class ReaderController : ControllerBase
 {
+    private readonly Channel<Func<Task>> _channel;
+
     private readonly BookInfoService _bookInfoService;
+
     private readonly PdfReaderService _pdfReaderService;
 
-    public ReaderController(BookInfoService bookInfoService, PdfReaderService pdfReaderService)
+    public ReaderController(Channel<Func<Task>> channel, BookInfoService bookInfoService, PdfReaderService pdfReaderService)
     {
+        _channel = channel;
         _bookInfoService = bookInfoService;
         _pdfReaderService = pdfReaderService;
     }
@@ -23,7 +28,7 @@ public class ReaderController : ControllerBase
         var file = Path.Combine(seriePath, $"{page}.jpg");
         if (!System.IO.File.Exists(file))
         {
-            Task.Run(() => {
+            Func<Task> command = () => Task.Run(() => {
                 if (!System.IO.Directory.Exists(seriePath))
                 {
                     Directory.CreateDirectory(seriePath);
@@ -31,6 +36,11 @@ public class ReaderController : ControllerBase
 
                 _pdfReaderService.LoadFile(pdfPath, isReversed: category.ToLower() == "mangas").Extract(seriePath, page);
             });
+
+            if (!_channel.Writer.TryWrite(command))
+            {
+                return Conflict();
+            }
         }
 
         return Ok();
