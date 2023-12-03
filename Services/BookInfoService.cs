@@ -20,7 +20,7 @@ namespace Comicsbox
         public async Task<BookContainer<Book>> GetBookListAsync(string category, string serie = "", bool resetCache = false)
         {
             var cacheKey = $"{category}-{serie}";
-            if (resetCache || !_memoryCache.TryGetValue(cacheKey, out BookContainer<Book> cacheValue))
+            if (resetCache || !_memoryCache.TryGetValue(cacheKey, out BookContainer<Book>? cacheValue))
             {
                 cacheValue = await BuildBookInfoAsync(category, serie);
 
@@ -30,7 +30,7 @@ namespace Comicsbox
                 _memoryCache.Set(cacheKey, cacheValue, cacheEntryOptions);
             }
 
-            return cacheValue;
+            return cacheValue!;
         }
 
         public string GetSeriePath(string category, string serie)

@@ -23,7 +23,7 @@ builder.Services.AddHostedService<ZipCleanerWorkerService>();
 
 var app = builder.Build();
 
-app.Services.GetService<FileMapService>().Init();
+app.Services.GetService<FileMapService>()!.Init();
 
 if (!app.Environment.IsDevelopment())
 {
@@ -35,7 +35,7 @@ app.UseStaticFiles(new StaticFileOptions
 {
     OnPrepareResponse = ctx =>
     {
-        string path = ctx.File.PhysicalPath;
+        string path = ctx.File.PhysicalPath!;
         string ext = Path.GetExtension(path);
         if (ext == ".jpg")
         {

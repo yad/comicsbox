@@ -26,16 +26,18 @@ namespace Comicsbox
 
             string basePath = _configuration.GetValue<string>("Settings:AbsoluteBasePath")!;
 
-            var lastAccessTimeUtc = new FileInfo(basePath).LastAccessTimeUtc;
+            var lastAccessTimeUtc = new FileInfo(Path.Combine(basePath, "LastAccessTimeUtc.txt")).LastAccessTimeUtc;
+
+            bool resetCache = false;
 
             if (allowRefreshCache && _lastAccessTimeUtc != lastAccessTimeUtc)
             {
                 Console.WriteLine("FileMap: Disk access time changed, reloading file map...");
-                _memoryCache.Remove(cacheKey);
+                resetCache = true;
                 _lastAccessTimeUtc = lastAccessTimeUtc;
             }
 
-            if (!_memoryCache.TryGetValue(cacheKey, out string[] cacheValue))
+            if (resetCache || !_memoryCache.TryGetValue(cacheKey, out string[]? cacheValue))
             {
                 Console.WriteLine("FileMap: Cache is updating...");
                 cacheValue = await Task.Run(() => Directory.GetFiles(basePath, "*.pdf", SearchOption.AllDirectories).Order().ToArray());
@@ -44,7 +46,7 @@ namespace Comicsbox
                 _memoryCache.Set(cacheKey, cacheValue);
             }
 
-            return cacheValue;
+            return cacheValue!;
         }
 
         public async Task<string[]> GetDirectoryMapAsync(bool allowRefreshCache = false)
