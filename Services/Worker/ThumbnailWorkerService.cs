@@ -39,7 +39,7 @@
 
                     var category = Path.GetFileName(Path.GetDirectoryName(file.DirectoryName)!).ToLower();
                     var isReversed = category == "mangas";
-                    await Task.Run(() => _thumbnailProvider.ProcessFile(file.FullName, isReversed), stoppingToken);
+                    await Task.Run(() => _thumbnailProvider.ProcessFile(file, isReversed), stoppingToken);
                 }
 
                 if (stoppingToken.IsCancellationRequested)

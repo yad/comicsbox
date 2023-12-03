@@ -42,7 +42,7 @@ namespace Comicsbox
                 DateTime now = DateTime.UtcNow;
                 Console.WriteLine("FileMap: Cache is updating...");
                 cacheValue = await Task.Run(() => Directory.GetFiles(basePath, "*.pdf", SearchOption.AllDirectories).Select(f => new FileInfo(f)).OrderBy(f => f.FullName).ToArray());
-                Console.WriteLine($"FileMap: Cache is updated  in {(DateTime.UtcNow - now).Seconds} seconds.");
+                Console.WriteLine($"FileMap: Cache updated in {(DateTime.UtcNow - now).Seconds} seconds.");
 
                 _memoryCache.Set(cacheKey, cacheValue);
             }

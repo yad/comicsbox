@@ -27,16 +27,15 @@ namespace Comicsbox
             return $"{hexString}.jpg";
         }
 
-        public void ProcessFile(string filePath, bool isReversed)
+        public void ProcessFile(FileInfo fileInfo, bool isReversed)
         {
-            var cacheThumbnail = Path.Combine("wwwroot", "cache", "thumbnails", GetThumbnailFileName(filePath));
+            var cacheThumbnail = Path.Combine("wwwroot", "cache", "thumbnails", GetThumbnailFileName(fileInfo.FullName));
 
             if (File.Exists(cacheThumbnail))
             {
-                var src = new FileInfo(filePath);
                 var dst = new FileInfo(cacheThumbnail);
 
-                if (dst.LastWriteTimeUtc < src.LastWriteTimeUtc)
+                if (dst.LastWriteTimeUtc < fileInfo.LastWriteTimeUtc)
                 {
                     File.Delete(cacheThumbnail);
                 }
@@ -48,18 +47,18 @@ namespace Comicsbox
 
             try
             {
-                var image = _pdfReaderService.LoadFile(filePath, isReversed).ReadCoverImage();
+                var image = _pdfReaderService.LoadFile(fileInfo.FullName, isReversed).ReadCoverImage();
                 var thumbnailContent = _imageService.ScaleAsThumbnail(image);
                 File.WriteAllBytes(cacheThumbnail, thumbnailContent);
                 // Console.WriteLine($"{filePath}:: DONE ({cacheThumbnail})");
             }
             catch (InvalidOperationException)
             {
-                Console.WriteLine($"{filePath}:: Thumbnail cannot be found");
+                Console.WriteLine($"{fileInfo.FullName}:: Thumbnail cannot be found");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"{filePath}:: {ex}");
+                Console.WriteLine($"{fileInfo.FullName}:: {ex}");
             }
         }
     }
