@@ -5,7 +5,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddMemoryCache();
-builder.Services.AddSingleton(Channel.CreateUnbounded<Func<Task>>());
+builder.Services.AddSingleton(Channel.CreateUnbounded<Reader>());
+builder.Services.AddSingleton(Channel.CreateUnbounded<Zip>());
 
 builder.Services.AddSingleton<BookInfoService, BookInfoService>();
 builder.Services.AddSingleton<FileMapService, FileMapService>();
@@ -14,14 +15,16 @@ builder.Services.AddTransient<PdfReaderService, PdfReaderService>();
 builder.Services.AddSingleton<ThumbnailProvider, ThumbnailProvider>();
 
 builder.Services.AddSingleton<PreCacheWorkerService, PreCacheWorkerService>();
-builder.Services.AddSingleton<TempFileWorkerService, TempFileWorkerService>();
+builder.Services.AddSingleton<ReaderWorkerService, ReaderWorkerService>();
+builder.Services.AddSingleton<ZipWorkerService, ZipWorkerService>();
 builder.Services.AddSingleton<ThumbnailWorkerService, ThumbnailWorkerService>();
 
 builder.Services.AddSingleton<ReaderCleanerWorkerService, ReaderCleanerWorkerService>();
 builder.Services.AddSingleton<ZipCleanerWorkerService, ZipCleanerWorkerService>();
 
 builder.Services.AddHostedService<PreCacheWorkerService>();
-builder.Services.AddHostedService<TempFileWorkerService>();
+builder.Services.AddHostedService<ReaderWorkerService>();
+builder.Services.AddHostedService<ZipWorkerService>();
 builder.Services.AddHostedService<ThumbnailWorkerService>();
 
 builder.Services.AddHostedService<ReaderCleanerWorkerService>();

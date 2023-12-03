@@ -8,11 +8,11 @@ namespace Comicsbox.Controllers;
 [Route("api/[controller]")]
 public class DownloadController : ControllerBase
 {
-    private readonly Channel<Func<Task>> _channel;
+    private readonly Channel<Zip> _channel;
 
     private readonly BookInfoService _bookInfoService;
 
-    public DownloadController(Channel<Func<Task>> channel, BookInfoService bookInfoService)
+    public DownloadController(Channel<Zip> channel, BookInfoService bookInfoService)
     {
         _channel = channel;
         _bookInfoService = bookInfoService;
@@ -25,7 +25,7 @@ public class DownloadController : ControllerBase
         var zipPath = Path.Combine("wwwroot", "temp", $"{serie}.zip");
         if (!System.IO.File.Exists(zipPath))
         {
-            Func<Task> command = () => Task.Run(() => {
+            var command = new Zip(zipPath, () => Task.Run(() => {
                 var tempPath = Path.Combine("wwwroot", "temp", $"{Guid.NewGuid()}.zip");
 
                 ZipFile.CreateFromDirectory(path, tempPath, CompressionLevel.NoCompression, false);
@@ -36,7 +36,7 @@ public class DownloadController : ControllerBase
                 }
 
                 System.IO.File.Move(tempPath, zipPath);
-            });
+            }));
 
             if (!_channel.Writer.TryWrite(command))
             {

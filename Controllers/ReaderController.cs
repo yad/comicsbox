@@ -7,13 +7,13 @@ namespace Comicsbox.Controllers;
 [Route("api/[controller]")]
 public class ReaderController : ControllerBase
 {
-    private readonly Channel<Func<Task>> _channel;
+    private readonly Channel<Reader> _channel;
 
     private readonly BookInfoService _bookInfoService;
 
     private readonly PdfReaderService _pdfReaderService;
 
-    public ReaderController(Channel<Func<Task>> channel, BookInfoService bookInfoService, PdfReaderService pdfReaderService)
+    public ReaderController(Channel<Reader> channel, BookInfoService bookInfoService, PdfReaderService pdfReaderService)
     {
         _channel = channel;
         _bookInfoService = bookInfoService;
@@ -28,14 +28,14 @@ public class ReaderController : ControllerBase
         var file = Path.Combine(seriePath, $"{page}.jpg");
         if (!System.IO.File.Exists(file))
         {
-            Func<Task> command = () => Task.Run(() => {
-                if (!System.IO.Directory.Exists(seriePath))
+            var command = new Reader(seriePath, () => Task.Run(() => {
+                if (!Directory.Exists(seriePath))
                 {
                     Directory.CreateDirectory(seriePath);
                 }
 
                 _pdfReaderService.LoadFile(pdfPath, isReversed: category.ToLower() == "mangas").Extract(seriePath, page);
-            });
+            }));
 
             if (!_channel.Writer.TryWrite(command))
             {
