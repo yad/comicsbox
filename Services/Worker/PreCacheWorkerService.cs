@@ -2,7 +2,6 @@
 {
     public class PreCacheWorkerService : BackgroundService
     {
-
         private readonly FileMapService _fileMapService;
 
         private readonly BookInfoService _bookInfoService;

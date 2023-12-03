@@ -2,13 +2,13 @@
 {
     public class ThumbnailWorkerService : BackgroundService
     {
-        private readonly IConfiguration _configuration;
+        private readonly FileMapService _fileMapService;
 
         private readonly ThumbnailProvider _thumbnailProvider;
 
-        public ThumbnailWorkerService(IConfiguration configuration, ThumbnailProvider thumbnailProvider)
+        public ThumbnailWorkerService(FileMapService fileMapService, ThumbnailProvider thumbnailProvider)
         {
-            _configuration = configuration;
+            _fileMapService = fileMapService;
             _thumbnailProvider = thumbnailProvider;
         }
 
@@ -19,9 +19,11 @@
 
         private async Task DoWork(CancellationToken stoppingToken)
         {
+            await Task.Delay(5 * 60 * 1000, stoppingToken);
+
             while (!stoppingToken.IsCancellationRequested)
             {
-                var files = await Task.Run(() => Browse(_configuration.GetValue<string>("Settings:AbsoluteBasePath")!));
+                var files = await _fileMapService.GetFileMapAsync();
                 Console.WriteLine($"ThumbnailWorker: detected {files.Count()} pdf files.");
 
                 if (stoppingToken.IsCancellationRequested)
@@ -36,9 +38,9 @@
                         break;
                     }
 
-                    var type = Path.GetFileName(Path.GetDirectoryName(Path.GetDirectoryName(file))!).ToLower();
-                    var isMangas = type == "mangas";
-                    await Task.Run(() => _thumbnailProvider.ProcessFile(file, isMangas), stoppingToken);
+                    var category = Path.GetFileName(Path.GetDirectoryName(Path.GetDirectoryName(file))!).ToLower();
+                    var isReversed = category == "mangas";
+                    await Task.Run(() => _thumbnailProvider.ProcessFile(file, isReversed), stoppingToken);
                 }
 
                 if (stoppingToken.IsCancellationRequested)
@@ -51,23 +53,6 @@
             }
 
             Console.WriteLine($"ThumbnailWorker: stopped.");
-        }
-
-        private IEnumerable<string> Browse(string path)
-        {
-            List<string> result = new List<string>();
-
-            foreach (var dir in Directory.GetDirectories(path))
-            {
-                result.AddRange(Browse(dir));
-            }
-
-            foreach (var file in Directory.GetFiles(path))
-            {
-                result.Add(file);
-            }
-
-            return result;
         }
     }
 }
