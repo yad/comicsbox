@@ -91,7 +91,7 @@ export default function Books({ setTitles, setAllowDownloadAll, stopSpinner, sta
         else {
             setBooks([
                 {
-                    "name": "Recherche 🔍",
+                    "name": "Recherche",
                     "thumbnail": "Search.jpg",
                     "onClick": () => {
                         navigate("/search/");
@@ -126,6 +126,7 @@ export default function Books({ setTitles, setAllowDownloadAll, stopSpinner, sta
 
         if (!category || !serie) {
             navigate(`${pathname}${encodeURI(current)}`);
+            window.scrollTo(0, 0);
         } else if (reader === "pdf") {
             const link = `/api/download/${category}/${serie}/${current}`;
             startSpinner();
