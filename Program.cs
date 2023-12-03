@@ -4,11 +4,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddMemoryCache();
-builder.Services.AddSingleton<ImageService, ImageService>();
-builder.Services.AddTransient<PdfReaderService, PdfReaderService>();
 
 builder.Services.AddSingleton<BookInfoService, BookInfoService>();
+builder.Services.AddSingleton<FileMapService, FileMapService>();
+builder.Services.AddSingleton<ImageService, ImageService>();
+builder.Services.AddTransient<PdfReaderService, PdfReaderService>();
 builder.Services.AddSingleton<ThumbnailProvider, ThumbnailProvider>();
+
 builder.Services.AddSingleton<PreCacheWorkerService, PreCacheWorkerService>();
 builder.Services.AddSingleton<ReaderCleanerWorkerService, ReaderCleanerWorkerService>();
 builder.Services.AddSingleton<ThumbnailWorkerService, ThumbnailWorkerService>();

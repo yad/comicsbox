@@ -2,13 +2,14 @@
 {
     public class PreCacheWorkerService : BackgroundService
     {
-        private readonly IConfiguration _configuration;
+
+        private readonly FileMapService _fileMapService;
 
         private readonly BookInfoService _bookInfoService;
 
-        public PreCacheWorkerService(IConfiguration configuration, BookInfoService bookInfoService)
+        public PreCacheWorkerService(FileMapService fileMapService, BookInfoService bookInfoService)
         {
-            _configuration = configuration;
+            _fileMapService = fileMapService;
             _bookInfoService = bookInfoService;
         }
 
@@ -21,7 +22,7 @@
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                var dirs = await Task.Run(() => Browse(_configuration.GetValue<string>("Settings:AbsoluteBasePath")!));
+                var dirs = await _fileMapService.GetDirectoryMapAsync(stoppingToken);
                 Console.WriteLine($"PreCacheWorker: detected {dirs.Count()} directories.");
 
                 if (stoppingToken.IsCancellationRequested)
@@ -29,13 +30,36 @@
                     break;
                 }
 
+                var categories = new List<string>();
+
                 foreach (var dir in dirs)
                 {
-                    var parts = dir.Split('¤');
-                    var category = parts[0];
-                    var serie = parts[1];
+                    if (stoppingToken.IsCancellationRequested)
+                    {
+                        break;
+                    }
+
+                    var category = Path.GetFileName(Path.GetDirectoryName(dir));
+                    var serie = Path.GetFileName(dir);
+
+                    categories.Add(category);
 
                     await Task.Run(() => _bookInfoService.GetBookList(category, serie, true), stoppingToken);
+                }
+
+                if (stoppingToken.IsCancellationRequested)
+                {
+                    break;
+                }
+
+                foreach (var category in categories.Distinct())
+                {
+                    if (stoppingToken.IsCancellationRequested)
+                    {
+                        break;
+                    }
+
+                    await Task.Run(() => _bookInfoService.GetBookList(category, "", true), stoppingToken);
                 }
 
                 if (stoppingToken.IsCancellationRequested)
@@ -48,27 +72,6 @@
             }
 
             Console.WriteLine($"PreCacheWorker: stopped.");
-        }
-
-        private IEnumerable<string> Browse(string path)
-        {
-            List<string> result = new List<string>();
-
-            foreach (var dir in Directory.GetDirectories(path))
-            {
-                var category = Path.GetFileName(dir);
-                var serie = "";
-                result.Add($"{category}¤{serie}");
-
-                foreach (var subdir in Directory.GetDirectories(dir))
-                {
-                    category = Path.GetFileName(Path.GetDirectoryName(subdir));
-                    serie = Path.GetFileName(subdir);
-                    result.Add($"{category}¤{serie}");
-                }
-            }
-
-            return result.Distinct();
         }
     }
 }
