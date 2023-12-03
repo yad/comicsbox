@@ -53,7 +53,7 @@ namespace Comicsbox
 
             List<Book> books = new List<Book>();
 
-            if (string.IsNullOrEmpty(serie))
+            if (string.IsNullOrEmpty(category))
             {
                 foreach (var file in files)
                 {
