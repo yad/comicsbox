@@ -9,6 +9,7 @@
 
         private async Task DoWork(CancellationToken stoppingToken)
         {
+            Console.WriteLine($"ZipCleanerWorker: initializing...");
             var tempPath = Path.Combine("wwwroot", "temp");
             while (!stoppingToken.IsCancellationRequested)
             {

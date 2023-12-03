@@ -19,6 +19,7 @@
 
         private async Task DoWork(CancellationToken stoppingToken)
         {
+            Console.WriteLine($"PreCacheWorker: initializing...");
             while (!stoppingToken.IsCancellationRequested)
             {
                 var dirs = await _fileMapService.GetDirectoryMapAsync(true);

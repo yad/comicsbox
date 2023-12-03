@@ -17,9 +17,7 @@ namespace Comicsbox
 
         public void Init()
         {
-            Console.WriteLine("File map is caching ...");
             GetFileMapAsync(true).GetAwaiter().GetResult();
-            Console.WriteLine("File map is cached.");
         }
 
         public async Task<string[]> GetFileMapAsync(bool allowRefreshCache = false)
@@ -32,15 +30,16 @@ namespace Comicsbox
 
             if (allowRefreshCache && _lastAccessTimeUtc != lastAccessTimeUtc)
             {
-                Console.WriteLine("Disk access time changed, reloading file map...");
+                Console.WriteLine("FileMap: Disk access time changed, reloading file map...");
                 _memoryCache.Remove(cacheKey);
                 _lastAccessTimeUtc = lastAccessTimeUtc;
             }
 
             if (!_memoryCache.TryGetValue(cacheKey, out string[] cacheValue))
             {
-                Console.WriteLine("File map is updating ...");
+                Console.WriteLine("FileMap: Cache is updating...");
                 cacheValue = await Task.Run(() => Directory.GetFiles(basePath, "*.pdf", SearchOption.AllDirectories).Order().ToArray());
+                Console.WriteLine("FileMap: Cache is updated.");
 
                 _memoryCache.Set(cacheKey, cacheValue);
             }

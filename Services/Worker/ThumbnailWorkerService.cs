@@ -19,6 +19,7 @@
 
         private async Task DoWork(CancellationToken stoppingToken)
         {
+            Console.WriteLine($"ThumbnailWorker: initializing...");
             while (!stoppingToken.IsCancellationRequested)
             {
                 var files = await _fileMapService.GetFileMapAsync();
