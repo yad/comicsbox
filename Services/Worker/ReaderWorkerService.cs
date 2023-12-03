@@ -28,7 +28,7 @@ namespace Comicsbox
             Console.WriteLine($"ReaderWorker: initializing...");
             while (!_channel.Reader.Completion.IsCompleted && await _channel.Reader.WaitToReadAsync())
             {
-                if (_channel.Reader.TryRead(out Reader cmd))
+                if (_channel.Reader.TryRead(out Reader? cmd))
                 {
                     Console.WriteLine($"ReaderWorker: handling {cmd.Name}...");
                     await cmd.Task.Invoke();
