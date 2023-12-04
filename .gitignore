@@ -30,6 +30,8 @@ Obj/
 /wwwroot/cache/**/*.jpg
 /wwwroot/temp/
 !/wwwroot/temp/.gitkeep
+!/wwwroot/cache/thumbnails/_*.jpg
+
 
 # MSTest test Results
 [Tt]est[Rr]esult*/

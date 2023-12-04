@@ -45,7 +45,7 @@ const completeSerie = (reader, category, serie, books) => {
                 const index = newBooks.indexOf(previous);
                 newBooks.splice(index + 1, 0, {
                     "name": currentBook,
-                    "thumbnail": "Missing.jpg",
+                    "thumbnail": "_Missing.jpg",
                     "isMissing": true
                 });
             }
@@ -92,7 +92,7 @@ export default function Books({ setTitles, setAllowDownloadAll, stopSpinner, sta
             setBooks([
                 {
                     "name": "Recherche",
-                    "thumbnail": "Search.jpg",
+                    "thumbnail": "_Search.jpg",
                     "onClick": () => {
                         navigate("/search/");
                         window.location.reload();
@@ -100,15 +100,19 @@ export default function Books({ setTitles, setAllowDownloadAll, stopSpinner, sta
                 },
                 {
                     "name": "BD",
-                    "thumbnail": "BD.jpg"
+                    "thumbnail": "_BD.jpg"
                 },
                 {
                     "name": "Comics",
-                    "thumbnail": "Comics.jpg"
+                    "thumbnail": "_Comics.jpg"
+                },
+                {
+                    "name": "Comics Autres",
+                    "thumbnail": "_ComicsOthers.jpg"
                 },
                 {
                     "name": "Mangas",
-                    "thumbnail": "Mangas.jpg"
+                    "thumbnail": "_Mangas.jpg"
                 }
             ].map((category) => ({ ...category, "isMain": true })));
             setTitles([]);
