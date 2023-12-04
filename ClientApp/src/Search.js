@@ -1,11 +1,13 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useTheme } from "@mui/material/styles";
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 
 export default function Search({ stopSpinner, startSpinner }) {
+    const theme = useTheme();
     const [series, setSeries] = useState([]);
     const location = useLocation();
     const navigate = useNavigate();
@@ -56,7 +58,7 @@ export default function Search({ stopSpinner, startSpinner }) {
                 options={series}
                 autoHighlight
                 ListboxProps={{ style: { maxHeight: "100%" } }}
-                noOptionsText="Pas assez de caractères, 3 minimum"
+                noOptionsText="Pas de résultats"
                 filterOptions={filterOptions}
                 getOptionLabel={(serie) => serie.name}
                 renderOption={(props, serie) => (
@@ -74,9 +76,11 @@ export default function Search({ stopSpinner, startSpinner }) {
                 renderInput={(params) => (
                     <TextField
                         {...params}
-                        label="Recherche..."
+                        color="primary"
+                        label="Recherche, à partir de 3 caractères..."
                         inputProps={{
                             ...params.inputProps,
+                            style: { color: theme.palette.primary.contrastText },
                             autoComplete: 'off', // disable autocomplete and autofill
                         }}
                     />
