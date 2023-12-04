@@ -54,15 +54,21 @@ export default function Search({ stopSpinner, startSpinner }) {
     return (
         <div style={{ "textAlign": "center", width: "100%", padding: 10 }}>
             <Autocomplete
-                style={{ height: "80vh", width: "100%" }}
+                style={{ width: "100%" }}
                 options={series}
                 autoHighlight
-                ListboxProps={{ style: { maxHeight: "100%" } }}
+                ListboxProps={{ style: { maxHeight: "100%", color: theme.palette.primary.contrastText, backgroundColor: "#424242" } }}
                 noOptionsText="Pas de résultats"
                 filterOptions={filterOptions}
                 getOptionLabel={(serie) => serie.name}
                 renderOption={(props, serie) => (
-                    <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props} onClick={() => nav(serie)}>
+                    <Box
+                        component="li"
+                        sx={{ '& > img': { mr: 2, flexShrink: 0 } }}
+                        {...props}
+                        onClick={() => nav(serie)}
+                        color="primary"
+                    >
                         <img
                             loading="lazy"
                             width="20"
@@ -76,13 +82,21 @@ export default function Search({ stopSpinner, startSpinner }) {
                 renderInput={(params) => (
                     <TextField
                         {...params}
-                        color="primary"
                         label="Recherche, à partir de 3 caractères..."
+                        variant="outlined"
+
                         inputProps={{
                             ...params.inputProps,
                             style: { color: theme.palette.primary.contrastText },
                             autoComplete: 'off', // disable autocomplete and autofill
                         }}
+
+                        InputLabelProps={{
+                            style: { color: '#fff' },
+                        }}
+
+                        autoFocus={true}
+                        sx={{ input: { color: theme.palette.primary.contrastText, borderColor: theme.palette.primary.contrastText } }}
                     />
                 )}
             />

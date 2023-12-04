@@ -21,12 +21,32 @@ import Search from './Search';
 const imgTheme = createTheme({
   palette: {
     primary: deepOrange
+  },
+  components: {
+    MuiAutocomplete: {
+      styleOverrides: {
+        noOptions: {
+          color: "#FFF",
+          backgroundColor: "#424242",
+        }
+      }
+    }
   }
 });
 
 const pdfTheme = createTheme({
   palette: {
     primary: red
+  },
+  components: {
+    MuiAutocomplete: {
+      styleOverrides: {
+        noOptions: {
+          color: "#FFF",
+          backgroundColor: "#424242",
+        }
+      }
+    }
   }
 });
 
@@ -75,9 +95,9 @@ export default function App() {
     <ThemeProvider theme={reader === "img" ? imgTheme : pdfTheme}>
       <CssBaseline />
       <GlobalStyles
-          styles={{
-            body: { backgroundColor: "#424242" },
-          }}
+        styles={{
+          body: { backgroundColor: "#424242" },
+        }}
       />
       <RouterProvider router={router} />
       <Backdrop
