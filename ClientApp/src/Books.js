@@ -111,10 +111,6 @@ export default function Books({ setTitles, setAllowDownloadAll, stopSpinner, sta
                     "thumbnail": "_ComicsMarvel.jpg"
                 },
                 {
-                    "name": "Comics",
-                    "thumbnail": "_Comics.jpg"
-                },
-                {
                     "name": "Comics Autres",
                     "thumbnail": "_ComicsOthers.jpg"
                 },
