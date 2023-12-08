@@ -7,7 +7,7 @@ namespace Comicsbox
         private readonly IMemoryCache _memoryCache;
         private readonly IConfiguration _configuration;
 
-        private DateTime _lastAccessTimeUtc;
+        private string _checksum = "replaceme";
 
         public FileMapService(IMemoryCache memoryCache, IConfiguration configuration)
         {
@@ -26,15 +26,15 @@ namespace Comicsbox
 
             string basePath = _configuration.GetValue<string>("Settings:AbsoluteBasePath")!;
 
-            var lastAccessTimeUtc = new FileInfo(Path.Combine(basePath, "LastAccessTimeUtc.txt")).LastAccessTimeUtc;
+            var checksum = File.ReadAllText(Path.Combine(basePath, "checksum"));
 
             bool resetCache = false;
 
-            if (allowRefreshCache && _lastAccessTimeUtc != lastAccessTimeUtc)
+            if (allowRefreshCache && _checksum != checksum)
             {
                 Console.WriteLine("FileMap: Disk access time changed, reloading file map...");
                 resetCache = true;
-                _lastAccessTimeUtc = lastAccessTimeUtc;
+                _checksum = checksum;
             }
 
             if (resetCache || !_memoryCache.TryGetValue(cacheKey, out FileInfo[]? cacheValue))
