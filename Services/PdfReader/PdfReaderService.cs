@@ -25,8 +25,7 @@ namespace Comicsbox
 
         public byte[] ReadCoverImage()
         {
-            int firstPage = IsDoublePage(1) ? 2 : 1;
-            return GetPageN(firstPage);
+            return GetPageN(1);
         }
 
         public void Extract(string path, int page)
@@ -73,7 +72,18 @@ namespace Comicsbox
                 virtualPageIndex++;
                 if (page == virtualPageIndex)
                 {
-                    side = isDoublePage ? (_isReversed ? ImageSide.Right : ImageSide.Left) : ImageSide.Both;
+                    if (!isDoublePage)
+                    {
+                        side = ImageSide.Both;
+                    }
+                    else if (page == 1)
+                    {
+                        side = _isReversed ? ImageSide.Left : ImageSide.Right;
+                    }
+                    else
+                    {
+                        side = _isReversed ? ImageSide.Right : ImageSide.Left;
+                    }
                     break;
                 }
 
@@ -82,7 +92,15 @@ namespace Comicsbox
                     virtualPageIndex++;
                     if (page == virtualPageIndex)
                     {
-                        side = _isReversed ? ImageSide.Left : ImageSide.Right;
+                        if (page == 2)
+                        {
+                            side = _isReversed ? ImageSide.Right : ImageSide.Left;
+                        }
+                        else
+                        {
+                            side = _isReversed ? ImageSide.Left : ImageSide.Right;
+                        }
+
                         break;
                     }
                 }
