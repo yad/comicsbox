@@ -52,9 +52,10 @@ namespace Comicsbox
                 File.WriteAllBytes(cacheThumbnail, thumbnailContent);
                 // Console.WriteLine($"{filePath}:: DONE ({cacheThumbnail})");
             }
-            catch (InvalidOperationException)
+            catch (InvalidOperationException ex)
             {
                 Console.WriteLine($"{fileInfo.FullName}:: Thumbnail cannot be found");
+                Console.WriteLine($"{fileInfo.FullName}:: {ex}");
             }
             catch (Exception ex)
             {
