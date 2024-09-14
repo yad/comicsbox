@@ -40,14 +40,30 @@ dotnet, download https://dotnet.microsoft.com/en-us/download/dotnet/8.0
 
 `sudo systemctl status comicsbox.service`
 
-# Update
+# Update ARM
 
 `git pull`
+
+`sudo systemctl stop comicsbox.service`
 
 `sudo dotnet publish --runtime linux-arm --self-contained -o /opt/comicsbox`
 
 `sudo chown -R comicsbox:comicsbox /opt/comicsbox/`
 
-`sudo systemctl restart comicsbox.service`
+`sudo systemctl start comicsbox.service`
+
+`sudo systemctl status comicsbox.service`
+
+# Update x64
+
+`git pull`
+
+`sudo systemctl stop comicsbox.service`
+
+`sudo dotnet publish --runtime linux-x64 --self-contained -o /opt/comicsbox`
+
+`sudo chown -R comicsbox:comicsbox /opt/comicsbox/`
+
+`sudo systemctl start comicsbox.service`
 
 `sudo systemctl status comicsbox.service`

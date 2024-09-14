@@ -1,4 +1,5 @@
 ﻿using iText.Kernel.Pdf;
+using iText.Kernel.Pdf.Canvas.Parser;
 
 namespace Comicsbox
 {
@@ -106,15 +107,13 @@ namespace Comicsbox
                 }
             }
 
-            var resources = _pdfDocument.GetPage(actualPageIndex).GetResources();
-            foreach (var resource in resources.GetResourceNames())
+            var strategy = new ImageRenderListener();
+            var parser = new PdfCanvasProcessor(strategy);
+            parser.ProcessPageContent(_pdfDocument.GetPage(actualPageIndex));
+            var imageBytes = strategy.GetResult();
+            if (imageBytes != null)
             {
-                var pdfImage = resources.GetImage(resource);
-                if (pdfImage != null)
-                {
-                    var imageBytes = pdfImage.GetImageBytes();
-                    return _imageService.TakePageSide(imageBytes, side);
-                }
+                return _imageService.TakePageSide(imageBytes, side);
             }
 
             throw new InvalidOperationException($"Current PDF file is invalid");
