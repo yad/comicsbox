@@ -25,8 +25,7 @@ export default function NavBar({ titles, allowDownloadAll, reader, setReader, st
   };
 
   const download = async () => {
-    // TODO
-    const [/*_*/, /*_*/, /*_*/, /*category*/, serie, /*book*/] = link.split('/');
+    const { serie } = getContext(location);
 
     startSpinner();
 

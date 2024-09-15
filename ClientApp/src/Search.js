@@ -5,6 +5,7 @@ import { useTheme } from "@mui/material/styles";
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
+import { getContext } from './Locator';
 
 export default function Search({ stopSpinner, startSpinner }) {
     const theme = useTheme();
@@ -47,8 +48,8 @@ export default function Search({ stopSpinner, startSpinner }) {
     };
 
     const nav = (serie) => {
-        const url = `/${encodeURI(serie.category)}/${encodeURI(serie.name)}`;
-        navigate(url);
+        const { nextLocation } = getContext(location);
+        navigate(nextLocation(`${encodeURI(serie.category)}/${encodeURI(serie.name)}`));
     };
 
     return (

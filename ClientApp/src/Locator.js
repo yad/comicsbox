@@ -19,8 +19,8 @@ export const getContext = (location) => {
         "closeCategory": `/${[virtualDir].filter(Boolean).join("/")}/`.replace('//', '/'),
         "nextPageLocation": `/${[virtualDir, category, serie, book, page + 1].filter(Boolean).join("/")}/`.replace('//', '/'),
         "previousPageLocation": `/${[virtualDir, category, serie, book, page - 1].filter(Boolean).join("/")}/`.replace('//', '/'),
-        "apiBook": `/api/book${currentPath}`,
-        "apiDownload": `/api/download${currentPath}`,
+        "apiBook": `/${[virtualDir, "/api/book", category, serie, book, page].filter(Boolean).join("/")}`.replace('//', '/'),
+        "apiDownload": `/${[virtualDir, "/api/download", category, serie, book, page].filter(Boolean).join("/")}`.replace('//', '/'),
         "nextLocation": (current) => `${currentPath}${current}`
     };
 
