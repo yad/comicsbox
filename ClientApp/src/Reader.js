@@ -22,7 +22,7 @@ export default function Reader({ stopSpinner, startSpinner }) {
     useEffect(() => {
         startSpinner();
 
-        const { category, serie, book, page } = getContext(location);
+        const { category, serie, book, page, jpgPage } = getContext(location);
         const link = `/api/reader/${category}/${serie}/${book}/${page}`;
 
         fetch(link, { "method": "POST" })
@@ -40,7 +40,7 @@ export default function Reader({ stopSpinner, startSpinner }) {
                         if (response.status === 200) {
                             stopSpinner();
                             saveProgress(category, serie, book, page);
-                            setImg(`/temp/${category}/${serie}/${book}/${page}.jpg`);
+                            setImg(jpgPage);
                         } else {
                             stopSpinner();
                             throw new Error(response);

@@ -25,7 +25,7 @@ export default function NavBar({ titles, allowDownloadAll, reader, setReader, st
   };
 
   const download = async () => {
-    const { serie } = getContext(location);
+    const { zipSerie, serie } = getContext(location);
 
     startSpinner();
 
@@ -39,7 +39,7 @@ export default function NavBar({ titles, allowDownloadAll, reader, setReader, st
       else {
         if (response.status === 200) {
           stopSpinner();
-          saveAs(`/temp/${serie}.zip`, `${decodeURI(serie)}.zip`);
+          saveAs(zipSerie, `${decodeURI(serie)}.zip`);
         } else {
           stopSpinner();
           throw new Error(response);

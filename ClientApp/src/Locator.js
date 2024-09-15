@@ -17,6 +17,8 @@ export const getContext = (location) => {
         "closeBook": `/${[virtualDir, category, serie].filter(Boolean).join("/")}/`.replace('//', '/'),
         "closeSerie": `/${[virtualDir, category].filter(Boolean).join("/")}/`.replace('//', '/'),
         "closeCategory": `/${[virtualDir].filter(Boolean).join("/")}/`.replace('//', '/'),
+        "jpgPage": `/${[virtualDir, "temp", category, serie, book, page].filter(Boolean).join("/")}.jpg`.replace('//', '/'),
+        "zipSerie": `/${[virtualDir, "temp", serie].filter(Boolean).join("/")}.zip`.replace('//', '/'),
         "nextPageLocation": `/${[virtualDir, category, serie, book, page + 1].filter(Boolean).join("/")}/`.replace('//', '/'),
         "previousPageLocation": `/${[virtualDir, category, serie, book, page - 1].filter(Boolean).join("/")}/`.replace('//', '/'),
         "apiBook": `/${[virtualDir, "/api/book", category, serie, book, page].filter(Boolean).join("/")}`.replace('//', '/'),
