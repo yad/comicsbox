@@ -7,6 +7,7 @@ import { useTheme } from "@mui/material/styles";
 import { getCurrentPage, getBookStatus } from "./progress";
 import DoneIcon from '@mui/icons-material/Done';
 import PendingIcon from '@mui/icons-material/Pending';
+import { getContext } from "./Locator";
 
 import { saveAs } from "file-saver";
 
@@ -65,12 +66,10 @@ export default function Books({ setTitles, setAllowDownloadAll, stopSpinner, sta
     const navigate = useNavigate();
 
     const check = async () => {
-        const [/*_*/, category, serie, book] = location.pathname.split('/');
+        const { category, serie, book, apiBook } = getContext(location);
         if (category) {
-            const url = `/api/book${location.pathname}`;
-
             startSpinner();
-            fetch(url)
+            fetch(apiBook)
                 .then((response) => response.json())
                 .then((data) => {
                     const collection = serie ? completeSerie(reader, category, serie, data.collection) : data.collection;
@@ -129,11 +128,10 @@ export default function Books({ setTitles, setAllowDownloadAll, stopSpinner, sta
     }, [location]);
 
     const nav = async (current) => {
-        const pathname = location.pathname.endsWith('/') ? location.pathname : `${location.pathname}/`;
-        const [/*_*/, category, serie, /*book*/] = pathname.split('/');
+        const { category, serie, nextLocation } = getContext(location);
 
         if (!category || !serie) {
-            navigate(`${pathname}${encodeURI(current)}`);
+            navigate(nextLocation(current));
             window.scrollTo(0, 0);
         } else if (reader === "pdf") {
             const link = `/api/download/${category}/${serie}/${current}`;
@@ -142,7 +140,7 @@ export default function Books({ setTitles, setAllowDownloadAll, stopSpinner, sta
             stopSpinner();
         }
         else {
-            navigate(`${pathname}${encodeURI(current)}/${getCurrentPage(category, serie, current)}`);
+            navigate(nextLocation([current, getCurrentPage(category, serie, current)].join('/')));
         }
     }
 

@@ -10,6 +10,7 @@ import DownloadIcon from '@mui/icons-material/Download';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import ImageIcon from '@mui/icons-material/Image';
 import { saveAs } from "file-saver";
+import { getContext } from "./Locator";
 
 export default function NavBar({ titles, allowDownloadAll, reader, setReader, stopSpinner, startSpinner }) {
   const [link, setLink] = useState(null);
@@ -23,15 +24,8 @@ export default function NavBar({ titles, allowDownloadAll, reader, setReader, st
     window.location.reload();
   };
 
-  const nav = (title) => {
-    if (!title) {
-      navigate("/");
-    } else if (title !== titles[titles.length - 1]) {
-      navigate(`/${encodeURI(title)}`);
-    }
-  };
-
   const download = async () => {
+    // TODO
     const [/*_*/, /*_*/, /*_*/, /*category*/, serie, /*book*/] = link.split('/');
 
     startSpinner();
@@ -58,18 +52,23 @@ export default function NavBar({ titles, allowDownloadAll, reader, setReader, st
   };
 
   useEffect(() => {
-    setLink(`/api/download${location.pathname}`)
+    const { apiDownload } = getContext(location);
+    setLink(apiDownload)
   }, [location]);
+
+  const { closeSerie, closeCategory } = getContext(location);
+
+  const isLast = (index) => index === titles.length - 1;
 
   return (
     <AppBar position="relative">
       <Toolbar className="breadcrumb">
-        <IconButton color="inherit" onClick={() => nav()}>
+        <IconButton color="inherit" onClick={() => navigate(closeCategory)}>
           <MenuBookIcon />
         </IconButton>
         <ul>
-          {titles.map((title) => (
-            <li key={title} variant="h6" color="inherit" onClick={() => nav(title)}>
+          {titles.map((title, index) => (
+            <li key={title} variant="h6" color="inherit" onClick={isLast(index) ? undefined : () => navigate(closeSerie)}>
               {decodeURI(title)}
             </li>
           ))}

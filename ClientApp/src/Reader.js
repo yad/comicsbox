@@ -7,6 +7,7 @@ import Dialog from '@mui/material/Dialog';
 import Slide from '@mui/material/Slide';
 import CloseIcon from '@mui/icons-material/Close';
 import { saveCompleted, saveProgress } from "./progress";
+import { getContext } from "./Locator";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
@@ -21,7 +22,7 @@ export default function Reader({ stopSpinner, startSpinner }) {
     useEffect(() => {
         startSpinner();
 
-        const [/*_*/, category, serie, book, page] = location.pathname.split('/');
+        const { category, serie, book, page } = getContext(location);
         const link = `/api/reader/${category}/${serie}/${book}/${page}`;
 
         fetch(link, { "method": "POST" })
@@ -57,11 +58,8 @@ export default function Reader({ stopSpinner, startSpinner }) {
     const handleClose = () => {
         stopSpinner();
 
-        const parts = location.pathname.split('/');
-        parts.pop(); // remove page
-        parts.pop(); // remove book
-
-        navigate(`${parts.join("/")}`);
+        const { closeBook } = getContext(location);
+        navigate(closeBook);
         window.location.reload();
 
         setOpen(false);
@@ -82,23 +80,20 @@ export default function Reader({ stopSpinner, startSpinner }) {
     });
 
     const nav = (ev) => {
-        const parts = location.pathname.split('/');
-        const page = Number.parseInt(parts.pop());
+        const { page, nextPageLocation, previousPageLocation, closeBook } = getContext(location);
 
         const halfScreenPosition = ev.view.innerWidth / 2;
         if (ev.clientX > halfScreenPosition) {
-            const nextPage = page + 1;
-            navigate(`${parts.join("/")}/${nextPage}`);
+            navigate(nextPageLocation);
         }
         else {
             const previousPage = page - 1;
             if (previousPage === 0) {
-                parts.pop(); // remove book
-                navigate(`${parts.join("/")}`);
+                navigate(closeBook);
                 window.location.reload();
             }
             else {
-                navigate(`${parts.join("/")}/${previousPage}`);
+                navigate(previousPageLocation);
             }
         }
     };
