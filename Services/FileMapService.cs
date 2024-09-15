@@ -25,8 +25,9 @@ namespace Comicsbox
             string cacheKey = "fileMap";
 
             string basePath = _configuration.GetValue<string>("Settings:AbsoluteBasePath")!;
+            string checksumPath = Path.Combine(basePath, "checksum");
 
-            var checksum = File.ReadAllText(Path.Combine(basePath, "checksum"));
+            var checksum = File.Exists(checksumPath) ? File.ReadAllText(checksumPath) : _checksum;
 
             bool resetCache = false;
 
