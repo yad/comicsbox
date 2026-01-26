@@ -32,12 +32,7 @@ public class ImageService
 
         using var resizedBitmap = new SKBitmap(resizedInfo);
 
-        var sampling = new SKSamplingOptions(
-            SKFilterMode.Linear,
-            SKMipmapMode.None
-        );
-
-        bitmap.ScalePixels(resizedBitmap, sampling);
+        bitmap.Resize(resizedBitmap.Info, SKFilterQuality.Medium);
 
         using var image = SKImage.FromBitmap(resizedBitmap);
 
