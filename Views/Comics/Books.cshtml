@@ -1,0 +1,103 @@
+@model List<comicsbox.Models.MangaItem>
+
+<div class="container">
+    <div class="text-center my-5">
+        <h1 class="display-4">@ViewBag.Series</h1>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="row">
+            @foreach (var book in Model)
+            {
+                <div class="col-md-6 col-lg-3 mb-4">
+                    <a href="@Url.Action("Download", "Comics",
+                        new
+                        {
+                            category = ViewBag.Category,
+                            series = ViewBag.Series,
+                            file = book.FileName
+                        })"
+                       class="text-decoration-none">
+
+                        <div class="card book-card">
+                            <div class="book-cover">
+                                <img src="@book.CoverUrl" alt="Cover">
+                            </div>
+                            <div class="card-body text-center">
+                                <h5 class="card-title">@book.Title</h5>
+                            </div>
+                        </div>
+
+                    </a>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <p>No books found in this series.</p>
+    }
+
+    <div class="mb-3 d-grid gap-2">
+        <button id="download-zip" class="btn btn-primary w-100">
+            Télécharger la série complète
+        </button>
+
+        <a href="@Url.Action("Series", "Comics", new { category = ViewBag.Category })"
+           class="btn btn-secondary w-100">
+            Retour aux séries
+        </a>
+    </div>
+
+    <!-- Overlay spinner -->
+    <div id="zip-overlay" class="zip-overlay d-none">
+        <div class="zip-spinner">
+            <div class="comic-spinner">
+                <span>⏳</span>
+            </div>
+            <p>Génération du ZIP...</p>
+        </div>
+    </div>
+
+    <script>
+        const downloadBtn = document.getElementById("download-zip");
+        const overlay = document.getElementById("zip-overlay");
+        const category = @Html.Raw(Json.Serialize(ViewBag.Category));
+        const series = @Html.Raw(Json.Serialize(ViewBag.Series));
+
+        downloadBtn.addEventListener("click", async function () {
+            // Bloquer le bouton
+            downloadBtn.disabled = true;
+
+            // Afficher overlay
+            overlay.classList.remove("d-none");
+
+            try {
+                // Demande la génération du ZIP
+                await fetch(`/Comics/DownloadSeries?category=${encodeURIComponent(category)}&series=${encodeURIComponent(series)}`);
+
+                // Poll pour savoir si le ZIP est prêt
+                const checkInterval = setInterval(async () => {
+                    const res = await fetch(`/Comics/CheckZipStatus?category=${encodeURIComponent(category)}&series=${encodeURIComponent(series)}`);
+                    const data = await res.json();
+
+                    if (data.status === "ready") {
+                        clearInterval(checkInterval);
+
+                        // Télécharger via le controller
+                        window.location.href = `/Comics/DownloadSeriesFile?category=${encodeURIComponent(category)}&series=${encodeURIComponent(series)}`;
+
+                        // Cacher overlay et réactiver bouton
+                        overlay.classList.add("d-none");
+                        downloadBtn.disabled = false;
+                    }
+                }, 2000);
+            } catch (err) {
+                console.error(err);
+                overlay.classList.add("d-none");
+                downloadBtn.disabled = false;
+            }
+        });
+    </script>
+</div>

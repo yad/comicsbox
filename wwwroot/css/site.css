@@ -1,0 +1,344 @@
+/* =========================================================
+   VARIABLES THEME
+   ========================================================= */
+:root {
+    --bg-main: linear-gradient(135deg, #fafafa 0%, #f0f4ff 100%);
+    --bg-card: #ffffff;
+    --bg-cover: #f3f3f3;
+
+    --text-main: #1e1e1e;
+    --text-muted: #555;
+
+    --primary: #ff6b35;
+    --primary-light: #f7931e;
+    --primary-dark: #f4511e;
+
+    --shadow-card: 0 10px 28px rgba(0,0,0,0.15);
+    --shadow-card-hover: 0 18px 40px rgba(255,107,53,0.35);
+}
+
+/* LIGHT THEME */
+body.theme-light {
+    --bg-main: linear-gradient(135deg, #fff5ee 0%, #ffebd6 100%);
+    --bg-card: #ffffff;
+    --bg-cover: #f3f3f3;
+
+    --text-main: #1e1e1e;
+    --text-muted: #555;
+
+    --primary: #ff6b35;
+    --primary-light: #f7931e;
+    --primary-dark: #f4511e;
+
+    --shadow-card: 0 10px 28px rgba(0,0,0,0.15);
+    --shadow-card-hover: 0 18px 40px rgba(255,107,53,0.35);
+}
+
+/* DARK THEME */
+body.theme-dark {
+    --bg-main: linear-gradient(135deg, #0f0f14 0%, #181c26 100%);
+    --bg-card: #1e1f26;
+    --bg-cover: #262730;
+
+    --text-main: #f1f1f1;
+    --text-muted: #b5b5b5;
+
+    --primary: #ff8c5a;
+    --primary-light: #ffb36b;
+    --primary-dark: #ff6b35;
+
+    --shadow-card: 0 12px 30px rgba(0,0,0,0.8);
+    --shadow-card-hover: 0 20px 50px rgba(255,140,90,0.45);
+}
+
+/* =========================================================
+   BASE
+   ========================================================= */
+html { font-size: 14px; }
+@media (min-width: 768px) { html { font-size: 16px; } }
+
+body {
+    background: var(--bg-main);
+    color: var(--text-main);
+    font-family: "Segoe UI", system-ui, sans-serif;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+body, .card, .card-body, .card-title, h1,h2,h3,h4,h5,p {
+    color: var(--text-main) !important;
+}
+
+/* =========================================================
+   NAVBAR MODERNE
+   ========================================================= */
+.navbar-modern {
+    border: none;
+    border-radius: 0;
+    padding: 0.5rem 1rem;
+    box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+    transition: background 0.3s ease;
+}
+
+body.theme-light .navbar-modern {
+    background: linear-gradient(90deg, #ff6b35 0%, #f7931e 50%, #fdb833 100%);
+}
+
+body.theme-dark .navbar-modern {
+    background: linear-gradient(90deg, #ff8c2b 0%, #ff9c45 50%, #ffb36b 100%);
+}
+
+/* TEXTE NAVBAR */
+body.theme-light .navbar-modern .navbar-brand,
+body.theme-light .navbar-modern .nav-link,
+body.theme-light .navbar-modern .navbar-toggler-icon,
+body.theme-dark .navbar-modern .navbar-brand,
+body.theme-dark .navbar-modern .nav-link,
+body.theme-dark .navbar-modern .navbar-toggler-icon {
+    color: #fff !important;
+}
+
+.navbar-modern .nav-link:hover {
+    color: #fffacd !important;
+}
+
+.navbar-toggler-icon {
+    filter: invert(1);
+}
+
+/* =========================================================
+   INPUT ET BOUTONS DE RECHERCHE
+   ========================================================= */
+form.d-flex .form-control {
+    background-color: var(--bg-card);
+    color: var(--text-main);
+    border-color: #444;
+    border-radius: 6px 0 0 6px;
+}
+
+form.d-flex .form-control::placeholder {
+    color: var(--text-muted);
+}
+
+/* Bouton Search */
+form.d-flex .btn-outline-light {
+    background-color: var(--bg-card);
+    color: var(--text-main);
+    border-color: #444;
+    border-radius: 0 6px 6px 0;
+    transition: all 0.25s ease;
+}
+
+form.d-flex .btn-outline-light:hover {
+    background-color: var(--primary-light);
+    color: #fff;
+    border-color: var(--primary);
+}
+
+/* Bouton Toggle thème */
+#theme-toggle {
+    background-color: var(--bg-card);
+    color: var(--text-main);
+    border: 1px solid #444;
+    border-radius: 6px;
+    margin-left: 0.5rem;
+    transition: all 0.25s ease;
+}
+
+#theme-toggle:hover {
+    background-color: var(--primary-light);
+    color: #fff;
+    border-color: var(--primary);
+}
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #6c757d, #868e96);
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+/* =========================================================
+   GRID & CARTES CENTREES
+   ========================================================= */
+.row { justify-content: center; }
+.col-md-3, .col-sm-6, .col-12 { display: flex; justify-content: center; }
+
+/* =========================================================
+   CARTES BD STYLE COMICS – VERSION CORRIGÉE
+   ========================================================= */
+.card.book-card {
+    width: 220px;
+    height: 250px;
+    background-color: var(--bg-card) !important;
+    border-radius: 16px;
+    border: 3px solid var(--primary); /* bordure comics */
+    display: flex;
+    flex-direction: column;
+    box-shadow: 6px 6px 0 rgba(0,0,0,0.25); /* effet “pop” */
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    background-image: repeating-linear-gradient(
+        45deg,
+        rgba(255,255,255,0.05) 0,
+        rgba(255,255,255,0.05) 2px,
+        transparent 2px,
+        transparent 4px
+    ); /* légère trame type comics */
+    overflow: hidden; /* <-- IMPORTANT pour coins arrondis visibles */
+}
+
+.card.book-card:hover {
+    transform: translateY(-10px) scale(1.05) rotate(-1deg);
+    box-shadow: 10px 10px 0 rgba(0,0,0,0.35);
+    border-color: var(--primary-light);
+}
+
+/* COVER */
+.book-cover {
+    height: 240px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-cover);
+    border-bottom: 2px solid var(--primary-dark);
+    overflow: hidden; /* <-- clips les images pour respecter les coins */
+    border-top-left-radius: 13px;
+    border-top-right-radius: 13px;
+}
+
+.card.book-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* ne crop pas l’image */
+    display: block;
+}
+
+/* TITLE ZONE – CENTRE H + V */
+.card.book-card .card-body {
+    flex: 1;
+    padding: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background-color: transparent;
+}
+
+.card.book-card .card-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.3;
+    margin: 0;
+    white-space: normal;
+    word-break: break-word;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.2);
+}
+
+/* GRID RESPONSIVE – MOBILE 2 CARTES PAR LIGNE */
+@media (max-width: 576px) {
+    .row {
+        justify-content: flex-start; /* pour mieux gérer le wrap */
+    }
+    .col-md-3, .col-sm-6, .col-12 {
+        flex: 0 0 50%; /* 2 cartes par ligne */
+        max-width: 50%;
+        margin-bottom: 1rem;
+        display: flex;
+        justify-content: center;
+    }
+    .card.book-card {
+        width: 48%; /* légèrement moins pour spacing */
+        height: 320px;
+    }
+    .book-cover { height: 200px; }
+}
+
+/* Overlay pour bloquer l'écran */
+.zip-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6); /* semi-transparent */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    flex-direction: column;
+    color: #fff;
+    font-family: 'Segoe UI', sans-serif;
+    text-align: center;
+}
+
+/* Spinner style bande dessinée */
+.zip-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.comic-spinner {
+    font-size: 3rem;
+    animation: jump 0.8s infinite;
+}
+
+/* Animation “rebond” pour donner effet cartoon */
+@keyframes jump {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
+
+/* Thème clair et sombre géré par body.theme-dark */
+body.theme-dark .zip-overlay {
+    background: rgba(0,0,0,0.8);
+    color: #ffcf73; /* couleur orange BD */
+}
+
+body:not(.theme-dark) .zip-overlay {
+    background: rgba(255,255,255,0.9);
+    color: #ff6b35; /* orange bande dessinée */
+}
+
+/* Cadres fixes pour les catégories */
+.card.category-card {
+    width: 100%;
+    height: 250px; /* hauteur fixe */
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    transition: all 0.3s ease;
+}
+
+.card.category-card:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 12px 30px rgba(255, 107, 53, 0.3);
+    border-top: 4px solid #ff6b35;
+}
+
+.card.category-card .book-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.card.category-card .card-title {
+    text-align: center;
+    font-weight: 600;
+    word-break: break-word; /* texte sur plusieurs lignes si besoin */
+}

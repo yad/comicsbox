@@ -1,0 +1,76 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ComicsBox</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body id="body" class="theme-dark d-flex flex-column min-vh-100">
+
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-modern mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">ComicsBox</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
+                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1"></ul>
+
+                    <div class="d-flex align-items-center">
+                        <form class="d-flex me-3" method="get" action="@Url.Action("Search", "Comics")">
+                            <input class="form-control me-2" type="search" name="query" placeholder="Rechercher des séries..." aria-label="Search">
+                            <button class="btn btn-outline-light" type="submit">🔍</button>
+                        </form>
+
+                        <!-- Toggle clair / sombre -->
+                        <button id="theme-toggle" class="btn btn-outline-light">🌙</button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main role="main" class="flex-fill container pb-3">
+        @RenderBody()
+    </main>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- THEME TOGGLE -->
+    <script>
+        (function(){
+            const body = document.getElementById('body');
+            const toggle = document.getElementById('theme-toggle');
+
+            // Vérifie le theme dans localStorage
+            const stored = localStorage.getItem('theme');
+            if(stored) {
+                body.className = stored + ' d-flex flex-column min-vh-100';
+                toggle.textContent = stored === 'theme-dark' ? '☀️' : '🌙';
+            }
+
+            toggle.addEventListener('click', () => {
+                if(body.classList.contains('theme-dark')){
+                    body.classList.remove('theme-dark');
+                    body.classList.add('theme-light');
+                    localStorage.setItem('theme','theme-light');
+                    toggle.textContent = '🌙';
+                } else {
+                    body.classList.remove('theme-light');
+                    body.classList.add('theme-dark');
+                    localStorage.setItem('theme','theme-dark');
+                    toggle.textContent = '☀️';
+                }
+            });
+        })();
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

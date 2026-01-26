@@ -1,0 +1,29 @@
+@model List<comicsbox.Models.SearchResult>
+
+<div class="container">
+    <h1 class="my-4">Search Results for "@ViewBag.Query"</h1>
+    @if (Model.Any())
+    {
+        <div class="row">
+            @foreach (var result in Model)
+            {
+                <div class="col-md-3 mb-4">
+                    <a href="@Url.Action("Books", "Comics", new { category = result.Category, series = result.Series })" class="text-decoration-none">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <div class="book-icon">📖</div>
+                                <h5 class="card-title">@result.Series</h5>
+                                <small class="text-muted">@result.Category</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <p>No series found matching "@ViewBag.Query".</p>
+    }
+    <a href="@Url.Action("Index", "Home")" class="btn btn-secondary">Back to Home</a>
+</div>
