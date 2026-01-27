@@ -6,75 +6,71 @@ public class ImageService
 {
     public byte[] ScaleAsThumbnail(byte[] bytes)
     {
-        using var input = SKData.CreateCopy(bytes);
-        using var codec = SKCodec.Create(input);
+        using (SKImage image = SKImage.FromEncodedData(bytes))
+        {
+            int sourceWidth = image.Width;
+            int sourceHeight = image.Height;
 
-        if (codec == null)
-            throw new InvalidOperationException("Invalid image data");
+            float dpi = 72.0f;
+            float ratio = 2.54f / dpi;
+            int maxside = (int)(5.2f / ratio);
 
-        var originalInfo = codec.Info;
-        using var bitmap = new SKBitmap(originalInfo);
-        codec.GetPixels(bitmap.Info, bitmap.GetPixels());
+            int destHeight = maxside;
+            int destWidth = destHeight * sourceWidth / sourceHeight;
 
-        int sourceWidth = bitmap.Width;
-        int sourceHeight = bitmap.Height;
+            var info = new SKImageInfo(destWidth, destHeight, SKImageInfo.PlatformColorType, SKAlphaType.Premul);
+            using (var surface = SKSurface.Create(info))
+            using (var paint = new SKPaint())
+            {
+                // high quality with antialiasing
+                paint.IsAntialias = true;
+                paint.FilterQuality = SKFilterQuality.High;
 
-        // 🎯 Taille cible WEB (pas impression)
-        const int targetHeight = 320; // parfait pour cartes
-        int targetWidth = sourceWidth * targetHeight / sourceHeight;
+                // draw the bitmap to fill the surface
+                surface.Canvas.DrawImage(image, new SKRectI(0, 0, destWidth, destHeight), paint);
+                surface.Canvas.Flush();
 
-        var resizedInfo = new SKImageInfo(
-            targetWidth,
-            targetHeight,
-            SKColorType.Rgb565, // 👈 énorme gain de poids
-            SKAlphaType.Opaque
-        );
-
-        using var resizedBitmap = new SKBitmap(resizedInfo);
-
-        bitmap.Resize(resizedBitmap.Info, SKFilterQuality.Medium);
-
-        using var image = SKImage.FromBitmap(resizedBitmap);
-
-        // 🎯 Qualité JPEG calibrée
-        using var encoded = image.Encode(SKEncodedImageFormat.Jpeg, 78);
-
-        return encoded.ToArray();
+                using (var newImg = surface.Snapshot())
+                {
+                    return newImg.Encode(SKEncodedImageFormat.Jpeg, 100).ToArray();
+                }
+            }
+        }
     }
-
 
     public byte[] TakePageSide(byte[] bytes, ImageSide imageSide)
     {
         if (imageSide == ImageSide.Both)
+        {
             return bytes;
+        }
 
-        using var input = SKData.CreateCopy(bytes);
-        using var codec = SKCodec.Create(input);
+        using (SKImage image = SKImage.FromEncodedData(bytes))
+        {
+            int sourceWidth = image.Width / 2;
+            int sourceHeight = image.Height;
+            int sourceX = imageSide == ImageSide.Left ? 0 : sourceWidth;
 
-        if (codec == null)
-            throw new InvalidOperationException("Invalid image data");
+            int destWidth = sourceWidth;
+            int destHeight = sourceHeight;
 
-        var info = codec.Info;
-        using var bitmap = new SKBitmap(info);
-        codec.GetPixels(bitmap.Info, bitmap.GetPixels());
+            var info = new SKImageInfo(destWidth, destHeight, SKImageInfo.PlatformColorType, SKAlphaType.Premul);
+            using (var surface = SKSurface.Create(info))
+            using (var paint = new SKPaint())
+            {
+                // high quality with antialiasing
+                paint.IsAntialias = true;
+                paint.FilterQuality = SKFilterQuality.High;
 
-        int halfWidth = bitmap.Width / 2;
-        int height = bitmap.Height;
+                // draw the bitmap to fill the surface
+                surface.Canvas.DrawImage(image, new SKRectI(sourceX, 0, sourceX + destWidth, destHeight), new SKRectI(0, 0, destWidth, destHeight), paint);
+                surface.Canvas.Flush();
 
-        var subsetRect = imageSide == ImageSide.Left
-            ? new SKRectI(0, 0, halfWidth, height)
-            : new SKRectI(halfWidth, 0, bitmap.Width, height);
-
-        using var sideBitmap = new SKBitmap(
-            new SKImageInfo(halfWidth, height, bitmap.ColorType, bitmap.AlphaType)
-        );
-
-        if (!bitmap.ExtractSubset(sideBitmap, subsetRect))
-            throw new InvalidOperationException("Failed to extract page side");
-
-        using var image = SKImage.FromBitmap(sideBitmap);
-        using var encoded = image.Encode(SKEncodedImageFormat.Jpeg, 90);
-
-        return encoded.ToArray();
+                using (var newImg = surface.Snapshot())
+                {
+                    return newImg.Encode(SKEncodedImageFormat.Jpeg, 100).ToArray();
+                }
+            }
+        }
     }
 }
