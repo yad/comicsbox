@@ -39,7 +39,7 @@ public class ComicsController : Controller
         {
             Name = s,
             CoverUrl = GetCoverPath(category, s)
-        }).ToList();
+        }).OrderBy(s => s.Name).ToList();
 
         ViewBag.Category = category;
         return View(seriesWithCovers);
