@@ -1,34 +1,9 @@
-﻿@model List<comicsbox.Models.BookCategory>
+﻿@model LibraryViewModel
 
 <div class="container">
     <div class="text-center my-5">
-        <h1 class="display-4">ComicsBox</h1>
+        <h1 class="display-4">@Model.Title</h1>
     </div>
-    @if (Model.Any())
-    {
-        <div class="row">
-            @foreach (var category in Model)
-            {
-                <div class="col-md-6 col-lg-3 mb-4">
-                    <a href="@Url.Action("Series", "Comics", new { category = category.Name })" class="text-decoration-none">
-                        <div class="card book-card">
-                            <div class="book-cover">
-                                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='300' viewBox='0 0 200 300'%3E%3Crect width='200' height='300' fill='%23e0e0e0'/%3E%3Ctext x='100' y='150' font-size='20' text-anchor='middle' fill='%23666'%3E📖%3C/text%3E%3C/svg%3E" alt="Cover">
-                            </div>
-                            <div class="card-body text-center">
-                                <h5 class="card-title">@category.Name</h5>
-                            </div>
-                        </div>
 
-                    </a>
-                </div>
-            }
-        </div>
-    }
-    else
-    {
-        <div class="text-center">
-            <p>No categories configured.</p>
-        </div>
-    }
+    <partial name="_CardGrid" model="Model.Items" />
 </div>

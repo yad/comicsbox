@@ -1,0 +1,34 @@
+@model List<CardItemViewModel>
+
+@if (Model.Any())
+{
+    <div class="row g-2">
+        @foreach (var item in Model)
+        {
+            <div class="col-6 col-md-4 col-lg-3 d-flex justify-content-center">
+                <a class="text-decoration-none w-100 d-flex justify-content-center"
+                href="@Url.Action(item.Action, item.Controller, item.RouteValues)">
+                    <div class="card book-card">
+                        <div class="book-cover">
+                            @if (item.IsEmoji)
+                            {
+                                <span class="emoji-cover">@item.ImageUrl</span>
+                            }
+                            else
+                            {
+                                <img src="@item.ImageUrl" alt="@item.Title" />
+                            }
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">@item.Title</h5>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <p>Aucun élément trouvé.</p>
+}

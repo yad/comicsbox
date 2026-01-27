@@ -80,6 +80,9 @@ body, .card, .card-body, .card-title, h1,h2,h3,h4,h5,p {
     padding: 0.5rem 1rem;
     box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
     transition: background 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 body.theme-light .navbar-modern {
@@ -109,85 +112,69 @@ body.theme-dark .navbar-modern .navbar-toggler-icon {
 }
 
 /* =========================================================
-   INPUT ET BOUTONS DE RECHERCHE
+   HEADER BOUTONS & CHAMP DE RECHERCHE UNIFORMES
    ========================================================= */
-form.d-flex .form-control {
-    background-color: var(--bg-card);
-    color: var(--text-main);
-    border-color: #444;
-    border-radius: 6px 0 0 6px;
-}
-
-form.d-flex .form-control::placeholder {
-    color: var(--text-muted);
-}
-
-/* Bouton Search */
-form.d-flex .btn-outline-light {
-    background-color: var(--bg-card);
-    color: var(--text-main);
-    border-color: #444;
-    border-radius: 0 6px 6px 0;
-    transition: all 0.25s ease;
-}
-
-form.d-flex .btn-outline-light:hover {
-    background-color: var(--primary-light);
-    color: #fff;
-    border-color: var(--primary);
-}
-
-/* Bouton Toggle thème */
-#theme-toggle {
+.header-btn {
     background-color: var(--bg-card);
     color: var(--text-main);
     border: 1px solid #444;
     border-radius: 6px;
-    margin-left: 0.5rem;
+    height: 2.25rem;           /* hauteur uniforme */
+    padding: 0 0.6rem;         /* padding horizontal */
+    font-size: 1.2rem;          /* texte uniforme */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
     transition: all 0.25s ease;
+    box-sizing: border-box;
 }
 
-#theme-toggle:hover {
+.header-btn:hover {
     background-color: var(--primary-light);
     color: #fff;
     border-color: var(--primary);
 }
 
-/* =========================================================
-   BUTTONS
-   ========================================================= */
-.btn-primary {
-    background: linear-gradient(135deg, var(--primary), var(--primary-light));
-    border: none;
-    border-radius: 10px;
-    font-weight: 600;
+/* Champ de recherche */
+form.d-flex .form-control {
+    background-color: var(--bg-card);
+    color: var(--text-main);
+    border: 1px solid #444;
+    border-radius: 6px;       /* coins identiques aux boutons */
+    height: 2.25rem;          /* même hauteur que les boutons */
+    padding: 0 0.6rem;
+    font-size: 1rem;          /* placeholder texte plus petit */
+    box-sizing: border-box;
 }
 
-.btn-secondary {
-    background: linear-gradient(135deg, #6c757d, #868e96);
-    border: none;
-    border-radius: 10px;
-    font-weight: 600;
+form.d-flex .form-control::placeholder {
+    color: var(--text-muted);
+    font-size: 1rem;
 }
 
-/* =========================================================
-   GRID & CARTES CENTREES
-   ========================================================= */
-.row { justify-content: center; }
-.col-md-3, .col-sm-6, .col-12 { display: flex; justify-content: center; }
+/* Bouton 🔍 collé au champ de recherche */
+form.d-flex button.header-btn {
+    border-radius: 6px;
+    height: 2.25rem;
+    padding: 0 0.6rem;
+    font-size: 1.2rem;
+    margin-left: 0.25rem;
+}
 
 /* =========================================================
    CARTES BD STYLE COMICS – VERSION CORRIGÉE
    ========================================================= */
 .card.book-card {
-    width: 220px;
+    width: 100%;
+    max-width: 220px;
     height: 250px;
     background-color: var(--bg-card) !important;
     border-radius: 16px;
-    border: 3px solid var(--primary); /* bordure comics */
+    border: 3px solid var(--primary);
     display: flex;
     flex-direction: column;
-    box-shadow: 6px 6px 0 rgba(0,0,0,0.25); /* effet “pop” */
+    box-shadow: 6px 6px 0 rgba(0,0,0,0.25);
     transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
     background-image: repeating-linear-gradient(
         45deg,
@@ -195,8 +182,8 @@ form.d-flex .btn-outline-light:hover {
         rgba(255,255,255,0.05) 2px,
         transparent 2px,
         transparent 4px
-    ); /* légère trame type comics */
-    overflow: hidden; /* <-- IMPORTANT pour coins arrondis visibles */
+    );
+    overflow: hidden;
 }
 
 .card.book-card:hover {
@@ -205,7 +192,6 @@ form.d-flex .btn-outline-light:hover {
     border-color: var(--primary-light);
 }
 
-/* COVER */
 .book-cover {
     height: 240px;
     display: flex;
@@ -213,7 +199,7 @@ form.d-flex .btn-outline-light:hover {
     justify-content: center;
     background: var(--bg-cover);
     border-bottom: 2px solid var(--primary-dark);
-    overflow: hidden; /* <-- clips les images pour respecter les coins */
+    overflow: hidden;
     border-top-left-radius: 13px;
     border-top-right-radius: 13px;
 }
@@ -221,11 +207,10 @@ form.d-flex .btn-outline-light:hover {
 .card.book-card img {
     width: 100%;
     height: 100%;
-    object-fit: contain; /* ne crop pas l’image */
+    object-fit: contain;
     display: block;
 }
 
-/* TITLE ZONE – CENTRE H + V */
 .card.book-card .card-body {
     flex: 1;
     padding: 0.75rem;
@@ -246,33 +231,16 @@ form.d-flex .btn-outline-light:hover {
     text-shadow: 1px 1px 0 rgba(0,0,0,0.2);
 }
 
-/* GRID RESPONSIVE – MOBILE 2 CARTES PAR LIGNE */
-@media (max-width: 576px) {
-    .row {
-        justify-content: flex-start; /* pour mieux gérer le wrap */
-    }
-    .col-md-3, .col-sm-6, .col-12 {
-        flex: 0 0 50%; /* 2 cartes par ligne */
-        max-width: 50%;
-        margin-bottom: 1rem;
-        display: flex;
-        justify-content: center;
-    }
-    .card.book-card {
-        width: 48%; /* légèrement moins pour spacing */
-        height: 320px;
-    }
-    .book-cover { height: 200px; }
-}
-
-/* Overlay pour bloquer l'écran */
+/* =========================================================
+   Overlay / Spinner
+   ========================================================= */
 .zip-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.6); /* semi-transparent */
+    background: rgba(0,0,0,0.6);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -283,7 +251,6 @@ form.d-flex .btn-outline-light:hover {
     text-align: center;
 }
 
-/* Spinner style bande dessinée */
 .zip-spinner {
     display: flex;
     flex-direction: column;
@@ -296,49 +263,45 @@ form.d-flex .btn-outline-light:hover {
     animation: jump 0.8s infinite;
 }
 
-/* Animation “rebond” pour donner effet cartoon */
 @keyframes jump {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-20px); }
 }
 
-/* Thème clair et sombre géré par body.theme-dark */
 body.theme-dark .zip-overlay {
     background: rgba(0,0,0,0.8);
-    color: #ffcf73; /* couleur orange BD */
+    color: #ffcf73;
 }
 
 body:not(.theme-dark) .zip-overlay {
     background: rgba(255,255,255,0.9);
-    color: #ff6b35; /* orange bande dessinée */
+    color: #ff6b35;
 }
 
-/* Cadres fixes pour les catégories */
-.card.category-card {
-    width: 100%;
-    height: 250px; /* hauteur fixe */
-    border-radius: 12px;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    transition: all 0.3s ease;
-}
+/* =========================================================
+   Responsive mobile
+   ========================================================= */
+@media (max-width: 576px) {
+    .header-btn {
+        font-size: 1rem;
+        height: 2rem;
+        padding: 0 0.5rem;
+    }
 
-.card.category-card:hover {
-    transform: translateY(-5px) scale(1.02);
-    box-shadow: 0 12px 30px rgba(255, 107, 53, 0.3);
-    border-top: 4px solid #ff6b35;
-}
+    form.d-flex .form-control {
+        height: 2rem;
+        font-size: 0.9rem;
+        padding: 0 0.5rem;
+    }
 
-.card.category-card .book-icon {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-}
+    form.d-flex button.header-btn {
+        height: 2rem;
+        font-size: 1rem;
+        padding: 0 0.5rem;
+        margin-left: 0.25rem;
+    }
 
-.card.category-card .card-title {
-    text-align: center;
-    font-weight: 600;
-    word-break: break-word; /* texte sur plusieurs lignes si besoin */
+    .navbar-modern {
+        padding: 0.5rem 0.75rem;
+    }
 }

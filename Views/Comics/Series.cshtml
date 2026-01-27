@@ -1,42 +1,9 @@
-@model List<comicsbox.Models.SeriesViewModel>
+@model LibraryViewModel
 
 <div class="container">
     <div class="text-center my-5">
-        <h1 class="display-4">@ViewBag.Category Series</h1>
+        <h1 class="display-4">@Model.Title</h1>
     </div>
 
-    @if (Model.Any())
-    {
-        <div class="row">
-            @foreach (var series in Model)
-            {
-                <div class="col-md-6 col-lg-3 mb-4">
-                    <a href="@Url.Action("Books", "Comics",
-                        new { category = ViewBag.Category, series = series.Name })"
-                       class="text-decoration-none">
-
-                        <div class="card book-card">
-                            <div class="book-cover">
-                                <img src="@series.CoverUrl" alt="Cover">
-                            </div>
-                            <div class="card-body text-center">
-                                <h5 class="card-title">@series.Name</h5>
-                            </div>
-                        </div>
-
-                    </a>
-                </div>
-            }
-        </div>
-    }
-    else
-    {
-        <p>No series found.</p>
-    }
-
-    <div class="mb-3">
-        <a href="@Url.Action("Index", "Home")" class="btn btn-secondary w-100">
-            Retour aux catégories
-        </a>
-    </div>
+    <partial name="_CardGrid" model="Model.Items" />
 </div>

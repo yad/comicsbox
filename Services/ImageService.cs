@@ -32,7 +32,7 @@ public class ImageService
 
                 using (var newImg = surface.Snapshot())
                 {
-                    return newImg.Encode(SKEncodedImageFormat.Jpeg, 100).ToArray();
+                    return newImg.Encode(SKEncodedImageFormat.Jpeg, 80).ToArray();
                 }
             }
         }
