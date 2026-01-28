@@ -5,7 +5,6 @@ using comicsbox.Services;
 using System.IO;
 using Microsoft.Extensions.Caching.Memory;
 
-
 namespace comicsbox.Controllers;
 
 public class ComicsController : Controller
@@ -25,8 +24,9 @@ public class ComicsController : Controller
     }
 
     /* ============================
-     * INDEX – Catégories
+     * INDEX – Catégories (/)
      * ============================ */
+    [HttpGet("")]
     public IActionResult Index()
     {
         var vm = new LibraryViewModel
@@ -37,7 +37,7 @@ public class ComicsController : Controller
                 .Select(c => new CardItemViewModel
                 {
                     Title = c.Name,
-                    ImageUrl = GetPlaceholder(),
+                    ImageUrl = GetCategoryCover(c.Name),
                     Action = "Series",
                     Controller = "Comics",
                     RouteValues = new { category = c.Name }
@@ -49,17 +49,18 @@ public class ComicsController : Controller
         return View(vm);
     }
 
+
     /* ============================
-     * SERIES
+     * SERIES (/Mangas)
      * ============================ */
+    [HttpGet("{category}")]
     public IActionResult Series(string category)
     {
         var cacheKey = $"series::{category}";
 
         if (_cache.TryGetValue(cacheKey, out LibraryViewModel vm))
         {
-            ViewData["ShowBackButton"] = true;
-            ViewData["BackUrl"] = Url.Action("Index", "Home");
+            SetBackToIndex();
             return View(vm);
         }
 
@@ -86,28 +87,23 @@ public class ComicsController : Controller
                 .ToList()
         };
 
-        ViewData["ShowBackButton"] = true;
-        ViewData["BackUrl"] = Url.Action("Index", "Home");
+        SetBackToIndex();
 
-        _cache.Set(cacheKey, vm, new MemoryCacheEntryOptions
-        {
-            AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(4)
-        });
-
+        _cache.Set(cacheKey, vm, TimeSpan.FromHours(4));
         return View(vm);
     }
 
     /* ============================
-     * BOOKS
+     * BOOKS (/Mangas/OnePiece)
      * ============================ */
+    [HttpGet("{category}/{series}")]
     public IActionResult Books(string category, string series)
     {
         var cacheKey = $"books::{category}::{series}";
 
         if (_cache.TryGetValue(cacheKey, out LibraryViewModel vm))
         {
-            ViewData["ShowBackButton"] = true;
-            ViewData["BackUrl"] = Url.Action("Series", "Comics", new { category });
+            SetBackToSeries(category);
             return View(vm);
         }
 
@@ -126,7 +122,9 @@ public class ComicsController : Controller
                 ImageUrl = GetCoverPath(category, series, Path.GetFileName(file)),
                 Action = "Download",
                 Controller = "Comics",
-                RouteValues = new { category, series, file = Path.GetFileName(file) }
+                RouteValues = new { category, series, file = Path.GetFileName(file) },
+                Category = category,
+                Series = series
             })
             .ToList();
 
@@ -147,30 +145,26 @@ public class ComicsController : Controller
                 Action = "DownloadSeries",
                 Controller = "Comics",
                 RouteValues = new { category, series },
-                IsEmoji = true
+                IsEmoji = true,
+                Category = category,
+                Series = series
             });
         }
 
-        ViewData["ShowBackButton"] = true;
-        ViewData["BackUrl"] = Url.Action("Series", "Comics", new { category });
+        SetBackToSeries(category);
 
-        _cache.Set(cacheKey, vm, new MemoryCacheEntryOptions
-        {
-            AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(4)
-        });
-
+        _cache.Set(cacheKey, vm, TimeSpan.FromHours(4));
         return View(vm);
     }
 
-
     /* ============================
-    * SEARCH
-    * ============================ */
+     * SEARCH (/search?query=xxx)
+     * ============================ */
+    [HttpGet("search")]
     public IActionResult Search(string query)
     {
         var items = new List<CardItemViewModel>();
 
-        // Si la recherche est vide, on reste sur la page et n'affiche rien
         if (!string.IsNullOrWhiteSpace(query))
         {
             foreach (var category in _categories)
@@ -178,13 +172,9 @@ public class ComicsController : Controller
                 if (!Directory.Exists(category.Path))
                     continue;
 
-                var seriesMatches = Directory.GetDirectories(category.Path)
-                    .Select(Path.GetFileName)
-                    .Where(name =>
-                        !string.IsNullOrWhiteSpace(name) &&
-                        name.Contains(query, StringComparison.OrdinalIgnoreCase));
-
-                foreach (var series in seriesMatches)
+                foreach (var series in Directory.GetDirectories(category.Path)
+                             .Select(Path.GetFileName)
+                             .Where(n => n != null && n.Contains(query, StringComparison.OrdinalIgnoreCase)))
                 {
                     items.Add(new CardItemViewModel
                     {
@@ -192,38 +182,31 @@ public class ComicsController : Controller
                         ImageUrl = GetCoverPath(category.Name, series!),
                         Action = "Books",
                         Controller = "Comics",
-                        RouteValues = new
-                        {
-                            category = category.Name,
-                            series
-                        }
+                        RouteValues = new { category = category.Name, series },
+                        Category = category.Name,
+                        Series = series
                     });
                 }
             }
         }
 
-        var vm = new LibraryViewModel
+        SetBackToIndex();
+
+        return View(new LibraryViewModel
         {
-            Title = query ?? "",       // si vide, on met ""
+            Title = query ?? "",
             Items = items.OrderBy(i => i.Title).ToList()
-        };
-
-        ViewData["ShowBackButton"] = true;
-        ViewData["BackUrl"] = Url.Action("Index", "Home");
-
-        return View(vm);
+        });
     }
 
     /* ============================
-     * DOWNLOAD PDF
-     * ============================ */
+    * DOWNLOAD PDF
+    * URL RESTful: /Comics/Download/{category}/{series}/{file}
+    * Exemple: /Comics/Download/BD/Alix origines/001.pdf
+    * ============================ */
+    [HttpGet("Comics/Download/{category}/{series}/{file}")]
     public IActionResult Download(string category, string series, string file)
     {
-        if (string.IsNullOrWhiteSpace(category) ||
-            string.IsNullOrWhiteSpace(series) ||
-            string.IsNullOrWhiteSpace(file))
-            return BadRequest();
-
         var cat = _categories.FirstOrDefault(c => c.Name == category);
         if (cat == null)
             return NotFound();
@@ -232,20 +215,22 @@ public class ComicsController : Controller
         if (!System.IO.File.Exists(filePath))
             return NotFound();
 
-        return PhysicalFile(filePath, "application/pdf", $"{series} - {Path.GetFileName(file)}");
+        // Téléchargement PDF avec nom correct
+        return PhysicalFile(filePath, "application/pdf", $"{series} - {file}");
     }
 
     /* ============================
-     * ZIP – Génération async
-     * ============================ */
-    [HttpGet]
+    * ZIP – génération async
+    * URL RESTful: /Comics/Zip/{category}/{series}
+    * ============================ */
+    [HttpGet("Comics/Zip/{category}/{series}")]
     public IActionResult DownloadSeries(string category, string series)
     {
-        var zipDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "cache", "zip");
+        var zipDir = Path.Combine("wwwroot", "cache", "zip");
         Directory.CreateDirectory(zipDir);
 
         var zipPath = Path.Combine(zipDir, $"{category}-{series}.zip");
-        var url = Url.Action("DownloadSeriesFile", "Comics", new { category, series });
+        var url = Url.Action("DownloadSeriesFile", new { category, series });
 
         if (!System.IO.File.Exists(zipPath))
         {
@@ -256,45 +241,104 @@ public class ComicsController : Controller
         return Json(new { status = "ready", url });
     }
 
-    [HttpGet]
+    /* ============================
+    * ZIP – téléchargement final
+    * URL RESTful: /Comics/ZipFile/{category}/{series}
+    * ============================ */
+    [HttpGet("Comics/ZipFile/{category}/{series}")]
     public IActionResult DownloadSeriesFile(string category, string series)
     {
-        var zipPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "cache", "zip", $"{category}-{series}.zip");
+        var zipPath = Path.Combine(
+            Directory.GetCurrentDirectory(),
+            "wwwroot",
+            "cache",
+            "zip",
+            $"{category}-{series}.zip"
+        );
 
         if (!System.IO.File.Exists(zipPath))
             return NotFound();
 
-        return PhysicalFile(zipPath, "application/zip", $"{series}.zip");
+        return PhysicalFile(
+            zipPath,
+            "application/zip",
+            $"{series}.zip"
+        );
     }
 
-    [HttpGet]
+    /* ============================
+    * Vérifier statut ZIP
+    * URL RESTful: /Comics/ZipStatus/{category}/{series}
+    * ============================ */
+    [HttpGet("Comics/ZipStatus/{category}/{series}")]
     public IActionResult CheckZipStatus(string category, string series)
     {
-        var zipPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "cache", "zip", $"{category}-{series}.zip");
-        var url = Url.Action("DownloadSeriesFile", "Comics", new { category, series });
+        var zipPath = Path.Combine("wwwroot", "cache", "zip", $"{category}-{series}.zip");
+        var url = Url.Action("DownloadSeriesFile", new { category, series });
 
         return Json(System.IO.File.Exists(zipPath)
             ? new { status = "ready", url }
             : new { status = "processing", url });
     }
 
-    /* ============================
-     * THUMBNAILS
-     * ============================ */
-    private string GetCoverPath(string category, string series, string? bookFileName = null)
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult Error()
     {
-        var cacheDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "cache", "thumbnails");
+        return View();
+    }
+
+
+    /* ============================
+     * Helpers navigation
+     * ============================ */
+    private void SetBackToIndex()
+    {
+        ViewData["ShowBackButton"] = true;
+        ViewData["BackUrl"] = Url.Action("Index", "Comics");
+    }
+
+    private void SetBackToSeries(string category)
+    {
+        ViewData["ShowBackButton"] = true;
+        ViewData["BackUrl"] = Url.Action("Series", "Comics", new { category });
+    }
+
+    private string GetCategoryCover(string category)
+    {
         var cat = _categories.FirstOrDefault(c => c.Name == category);
-        if (cat == null || !Directory.Exists(cat.Path)) return GetPlaceholder();
+        if (cat == null || !Directory.Exists(cat.Path))
+            return GetPlaceholder();
+
+        // Récupère toutes les séries valides
+        var seriesList = Directory.GetDirectories(cat.Path)
+            .Select(Path.GetFileName)
+            .Where(name => !string.IsNullOrWhiteSpace(name))
+            .ToList();
+
+        if (!seriesList.Any())
+            return GetPlaceholder();
+
+        // Choisir une série au hasard
+        var random = new Random();
+        var series = seriesList[random.Next(seriesList.Count)];
 
         var seriesPath = Path.Combine(cat.Path, series);
-        if (!Directory.Exists(seriesPath)) return GetPlaceholder();
+        var pdfs = Directory.GetFiles(seriesPath, "*.pdf")
+            .OrderBy(f => f)
+            .ToList();
 
-        var pdfs = Directory.GetFiles(seriesPath, "*.pdf").OrderBy(f => f).ToList();
-        if (!pdfs.Any()) return GetPlaceholder();
+        if (!pdfs.Any())
+            return GetPlaceholder();
 
-        var pdf = bookFileName != null ? pdfs.FirstOrDefault(f => Path.GetFileName(f) == bookFileName) : pdfs.First();
-        if (pdf == null) return GetPlaceholder();
+        // Choisir un PDF aléatoire parmi la série sélectionnée
+        var pdf = pdfs[random.Next(pdfs.Count)];
+
+        var cacheDir = Path.Combine(
+            Directory.GetCurrentDirectory(),
+            "wwwroot",
+            "cache",
+            "thumbnails"
+        );
 
         var thumbName = ThumbnailHelper.GetThumbnailFileName(pdf);
         var cachePath = Path.Combine(cacheDir, thumbName);
@@ -306,6 +350,90 @@ public class ComicsController : Controller
 
     private string GetPlaceholder()
     {
-        return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='300' viewBox='0 0 200 300'%3E%3Crect width='200' height='300' fill='%23e0e0e0'/%3E%3Ctext x='100' y='150' font-size='20' text-anchor='middle' fill='%23666'%3E📖%3C/text%3E%3C/svg%3E";
+        return
+            "data:image/svg+xml;utf8," +
+            "<svg xmlns='http://www.w3.org/2000/svg' width='200' height='300' viewBox='0 0 200 300'>" +
+
+            // Fond
+            "<defs>" +
+            "<linearGradient id='bg' x1='0' y1='0' x2='1' y2='1'>" +
+            "<stop offset='0%' stop-color='%23f5f5f5'/>" +
+            "<stop offset='100%' stop-color='%23e0e0e0'/>" +
+            "</linearGradient>" +
+            "</defs>" +
+
+            "<rect width='200' height='300' fill='url(%23bg)'/>" +
+
+            // Cadre comics
+            "<rect x='10' y='10' width='180' height='280' rx='18' ry='18' " +
+            "fill='%23ffffff' stroke='%23ff6b35' stroke-width='4'/>" +
+
+            // Trame comics légère
+            "<g opacity='0.08'>" +
+            "<circle cx='40' cy='60' r='6' fill='%23000'/>" +
+            "<circle cx='70' cy='80' r='6' fill='%23000'/>" +
+            "<circle cx='100' cy='60' r='6' fill='%23000'/>" +
+            "<circle cx='130' cy='80' r='6' fill='%23000'/>" +
+            "<circle cx='160' cy='60' r='6' fill='%23000'/>" +
+            "</g>" +
+
+            // Icône outil / génération
+            "<text x='100' y='120' font-size='48' text-anchor='middle'>⚙️</text>" +
+
+            // Ligne
+            "<line x1='40' y1='150' x2='160' y2='150' stroke='%23ff6b35' stroke-width='3'/>" +
+
+            // Texte principal
+            "<text x='100' y='180' font-size='14' text-anchor='middle' " +
+            "font-family='Segoe UI, Arial, sans-serif' fill='%23333' font-weight='700'>" +
+            "Couverture en cours" +
+            "</text>" +
+
+            // Texte secondaire
+            "<text x='100' y='200' font-size='12' text-anchor='middle' " +
+            "font-family='Segoe UI, Arial, sans-serif' fill='%23666'>" +
+            "Génération en arrière-plan…" +
+            "</text>" +
+
+            "</svg>";
+    }
+
+    private string GetCoverPath(string category, string series, string? bookFileName = null)
+    {
+        var cacheDir = Path.Combine(
+            Directory.GetCurrentDirectory(),
+            "wwwroot",
+            "cache",
+            "thumbnails"
+        );
+
+        var cat = _categories.FirstOrDefault(c => c.Name == category);
+        if (cat == null || !Directory.Exists(cat.Path))
+            return GetPlaceholder();
+
+        var seriesPath = Path.Combine(cat.Path, series);
+        if (!Directory.Exists(seriesPath))
+            return GetPlaceholder();
+
+        var pdfs = Directory.GetFiles(seriesPath, "*.pdf")
+            .OrderBy(f => f)
+            .ToList();
+
+        if (!pdfs.Any())
+            return GetPlaceholder();
+
+        var pdf = bookFileName != null
+            ? pdfs.FirstOrDefault(f => Path.GetFileName(f) == bookFileName)
+            : pdfs.First();
+
+        if (pdf == null)
+            return GetPlaceholder();
+
+        var thumbName = ThumbnailHelper.GetThumbnailFileName(pdf);
+        var cachePath = Path.Combine(cacheDir, thumbName);
+
+        return System.IO.File.Exists(cachePath)
+            ? $"/cache/thumbnails/{thumbName}"
+            : GetPlaceholder();
     }
 }

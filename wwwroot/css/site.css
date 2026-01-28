@@ -231,6 +231,21 @@ form.d-flex button.header-btn {
     text-shadow: 1px 1px 0 rgba(0,0,0,0.2);
 }
 
+/* Emoji comme couverture */
+.emoji-cover {
+    font-size: 6rem;                /* beaucoup plus grand que le texte normal */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    line-height: 1;
+    pointer-events: none;           /* clic passe à l’a <a> parent */
+    user-select: none;
+}
+
+
 /* =========================================================
    Overlay / Spinner
    ========================================================= */

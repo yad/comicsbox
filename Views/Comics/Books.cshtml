@@ -22,24 +22,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.querySelectorAll(".zip-btn").forEach(btn => {
         btn.addEventListener("click", async e => {
-            e.preventDefault(); // <-- empêche le GET classique
+            e.preventDefault(); // empêche le GET classique
+            e.stopPropagation();
 
             overlay.classList.remove("d-none");
 
-            const category = @Html.Raw(Json.Serialize(@Model.Category));
-            const series = @Html.Raw(Json.Serialize(@Model.Series));
+            // Récupère les infos depuis les data-attributes du bouton
+            const category = btn.dataset.category;
+            const series = btn.dataset.series;
 
-            // Appel API
-            const startResp = await fetch(
-                `/Comics/DownloadSeries?category=${encodeURIComponent(category)}&series=${encodeURIComponent(series)}`
-            );
-
+            // Lancer génération ZIP via API RESTful
+            const startResp = await fetch(`/Comics/Zip/${encodeURIComponent(category)}/${encodeURIComponent(series)}`);
             const startData = await startResp.json();
 
+            // Polling pour vérifier quand le ZIP est prêt
             const interval = setInterval(async () => {
-                const statusResp = await fetch(
-                    `/Comics/CheckZipStatus?category=${encodeURIComponent(category)}&series=${encodeURIComponent(series)}`
-                );
+                const statusResp = await fetch(`/Comics/ZipStatus/${encodeURIComponent(category)}/${encodeURIComponent(series)}`);
                 const statusData = await statusResp.json();
 
                 if (statusData.status === "ready") {
@@ -47,9 +45,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     overlay.classList.add("d-none");
 
                     // Téléchargement réel
-                    window.location.href = statusData.url;
+                    window.location.href = `/Comics/ZipFile/${encodeURIComponent(category)}/${encodeURIComponent(series)}`;
                 }
-            }, 5000);
+            }, 1500);
         });
     });
 });

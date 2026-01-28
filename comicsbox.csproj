@@ -19,7 +19,6 @@
 
   <ItemGroup>
     <PackageReference Include="itext7" Version="9.5.0" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="PDFsharp" Version="6.2.4" />
     <PackageReference Include="SkiaSharp" Version="2.88.9" />
