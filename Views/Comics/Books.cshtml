@@ -23,31 +23,33 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".zip-btn").forEach(btn => {
         btn.addEventListener("click", async e => {
             e.preventDefault(); // <-- empêche le GET classique
+
             overlay.classList.remove("d-none");
 
-            const category = btn.dataset.category;
-            const series = btn.dataset.series;
+            const category = @Html.Raw(Json.Serialize(@Model.Category));
+            const series = @Html.Raw(Json.Serialize(@Model.Series));
 
-            // Lancer la génération ZIP via POST
-            const resp = await fetch(`/Comics/DownloadSeries`, {
-                method: "POST",
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ category, series })
-            });
-            const data = await resp.json();
-            const url = data.url;
+            // Appel API
+            const startResp = await fetch(
+                `/Comics/DownloadSeries?category=${encodeURIComponent(category)}&series=${encodeURIComponent(series)}`
+            );
 
-            // Polling jusqu'à ce que le ZIP soit prêt
+            const startData = await startResp.json();
+
             const interval = setInterval(async () => {
-                const statusResp = await fetch(`/Comics/CheckZipStatus?category=${encodeURIComponent(category)}&series=${encodeURIComponent(series)}`);
+                const statusResp = await fetch(
+                    `/Comics/CheckZipStatus?category=${encodeURIComponent(category)}&series=${encodeURIComponent(series)}`
+                );
                 const statusData = await statusResp.json();
 
                 if (statusData.status === "ready") {
                     clearInterval(interval);
                     overlay.classList.add("d-none");
-                    window.location.href = statusData.url; // téléchargement
+
+                    // Téléchargement réel
+                    window.location.href = statusData.url;
                 }
-            }, 1500);
+            }, 5000);
         });
     });
 });

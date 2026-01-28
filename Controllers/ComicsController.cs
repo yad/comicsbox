@@ -109,19 +109,19 @@ public class ComicsController : Controller
             Items = books
         };
 
-        // // Ajouter la carte ZIP si plusieurs ebooks
-        // if (books.Count > 1)
-        // {
-        //     vm.Items.Add(new CardItemViewModel
-        //     {
-        //         Title = "Télécharger la série complète",
-        //         ImageUrl = "📦",
-        //         Action = "DownloadSeries",
-        //         Controller = "Comics",
-        //         RouteValues = new { category, series },
-        //         IsEmoji = true
-        //     });
-        // }
+        // Ajouter la carte ZIP si plusieurs ebooks
+        if (books.Count > 1)
+        {
+            vm.Items.Add(new CardItemViewModel
+            {
+                Title = "Télécharger la série complète",
+                ImageUrl = "📦",
+                Action = "DownloadSeries",
+                Controller = "Comics",
+                RouteValues = new { category, series },
+                IsEmoji = true
+            });
+        }
 
         ViewData["ShowBackButton"] = true;
         ViewData["BackUrl"] = Url.Action("Series", "Comics", new { category });
@@ -203,7 +203,7 @@ public class ComicsController : Controller
     /* ============================
      * ZIP – Génération async
      * ============================ */
-    [HttpPost]
+    [HttpGet]
     public IActionResult DownloadSeries(string category, string series)
     {
         var zipDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "cache", "zip");
