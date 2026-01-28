@@ -12,7 +12,7 @@ public class ZipCleanupWorker : BackgroundService
     private static readonly TimeSpan MaxZipAge = TimeSpan.FromHours(4);
 
     // ⏲ fréquence de nettoyage
-    private static readonly TimeSpan CleanupInterval = TimeSpan.FromMinutes(30);
+    private static readonly TimeSpan CleanupInterval = TimeSpan.FromMinutes(10); // <- 10 minutes
 
     public ZipCleanupWorker(ILogger<ZipCleanupWorker> logger)
     {
@@ -33,7 +33,9 @@ public class ZipCleanupWorker : BackgroundService
         {
             try
             {
+                _logger.LogInformation("ZipCleanupWorker cycle started");
                 CleanupOldZips();
+                _logger.LogInformation("ZipCleanupWorker cycle completed");
             }
             catch (Exception ex)
             {
@@ -42,11 +44,12 @@ public class ZipCleanupWorker : BackgroundService
 
             try
             {
+                // ⏳ attend 10 minutes avant le prochain cycle
                 await Task.Delay(CleanupInterval, stoppingToken);
             }
-            catch (TaskCanceledException)
+            catch (OperationCanceledException)
             {
-                // normal à l'arrêt
+                break; // arrêt propre
             }
         }
 
