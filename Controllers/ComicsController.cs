@@ -3,18 +3,23 @@ using Microsoft.Extensions.Options;
 using comicsbox.Models;
 using comicsbox.Services;
 using System.IO;
+using Microsoft.Extensions.Caching.Memory;
+
 
 namespace comicsbox.Controllers;
 
 public class ComicsController : Controller
 {
+    private readonly IMemoryCache _cache;
     private readonly List<BookCategory> _categories;
     private readonly ZipWorker _zipWorker;
 
     public ComicsController(
+        IMemoryCache cache,
         ZipWorker zipWorker,
         IOptions<List<BookCategory>> categories)
     {
+        _cache = cache;
         _categories = categories.Value;
         _zipWorker = zipWorker;
     }
@@ -49,11 +54,20 @@ public class ComicsController : Controller
      * ============================ */
     public IActionResult Series(string category)
     {
+        var cacheKey = $"series::{category}";
+
+        if (_cache.TryGetValue(cacheKey, out LibraryViewModel vm))
+        {
+            ViewData["ShowBackButton"] = true;
+            ViewData["BackUrl"] = Url.Action("Index", "Home");
+            return View(vm);
+        }
+
         var cat = _categories.FirstOrDefault(c => c.Name == category);
         if (cat == null || !Directory.Exists(cat.Path))
             return NotFound();
 
-        var vm = new LibraryViewModel
+        vm = new LibraryViewModel
         {
             Title = $"{category} – Séries",
             Category = category,
@@ -74,6 +88,12 @@ public class ComicsController : Controller
 
         ViewData["ShowBackButton"] = true;
         ViewData["BackUrl"] = Url.Action("Index", "Home");
+
+        _cache.Set(cacheKey, vm, new MemoryCacheEntryOptions
+        {
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(4)
+        });
+
         return View(vm);
     }
 
@@ -82,6 +102,15 @@ public class ComicsController : Controller
      * ============================ */
     public IActionResult Books(string category, string series)
     {
+        var cacheKey = $"books::{category}::{series}";
+
+        if (_cache.TryGetValue(cacheKey, out LibraryViewModel vm))
+        {
+            ViewData["ShowBackButton"] = true;
+            ViewData["BackUrl"] = Url.Action("Series", "Comics", new { category });
+            return View(vm);
+        }
+
         var cat = _categories.FirstOrDefault(c => c.Name == category);
         if (cat == null)
             return NotFound();
@@ -101,7 +130,7 @@ public class ComicsController : Controller
             })
             .ToList();
 
-        var vm = new LibraryViewModel
+        vm = new LibraryViewModel
         {
             Title = series,
             Category = category,
@@ -109,7 +138,6 @@ public class ComicsController : Controller
             Items = books
         };
 
-        // Ajouter la carte ZIP si plusieurs ebooks
         if (books.Count > 1)
         {
             vm.Items.Add(new CardItemViewModel
@@ -125,8 +153,15 @@ public class ComicsController : Controller
 
         ViewData["ShowBackButton"] = true;
         ViewData["BackUrl"] = Url.Action("Series", "Comics", new { category });
+
+        _cache.Set(cacheKey, vm, new MemoryCacheEntryOptions
+        {
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(4)
+        });
+
         return View(vm);
     }
+
 
     /* ============================
     * SEARCH
