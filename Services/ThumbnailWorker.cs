@@ -23,44 +23,76 @@ public class ThumbnailWorker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("ThumbnailWorker starting thumbnail generation...");
+        _logger.LogInformation("ThumbnailWorker started");
 
-        try
+        // Boucle de vie du worker
+        while (!stoppingToken.IsCancellationRequested)
         {
-            if (!Directory.Exists(_cacheDir))
+            try
             {
-                Directory.CreateDirectory(_cacheDir);
-            }
+                _logger.LogInformation("ThumbnailWorker cycle started");
 
-            foreach (var category in _categories)
-            {
-                if (stoppingToken.IsCancellationRequested)
-                    break;
-
-                if (!Directory.Exists(category.Path))
+                if (!Directory.Exists(_cacheDir))
                 {
-                    _logger.LogWarning($"Category path not found: {category.Path}");
-                    continue;
+                    Directory.CreateDirectory(_cacheDir);
                 }
 
-                var seriesDirs = Directory.GetDirectories(category.Path);
-                foreach (var seriesPath in seriesDirs)
+                foreach (var category in _categories)
                 {
                     if (stoppingToken.IsCancellationRequested)
                         break;
 
-                    var seriesName = Path.GetFileName(seriesPath);
-                    await GenerateThumbnailAsync(category.Name, seriesName, seriesPath, stoppingToken);
+                    if (!Directory.Exists(category.Path))
+                    {
+                        _logger.LogWarning($"Category path not found: {category.Path}");
+                        continue;
+                    }
+
+                    var seriesDirs = Directory.GetDirectories(category.Path);
+
+                    foreach (var seriesPath in seriesDirs)
+                    {
+                        if (stoppingToken.IsCancellationRequested)
+                            break;
+
+                        var seriesName = Path.GetFileName(seriesPath);
+                        await GenerateThumbnailAsync(
+                            category.Name,
+                            seriesName,
+                            seriesPath,
+                            stoppingToken
+                        );
+                    }
                 }
+
+                _logger.LogInformation("ThumbnailWorker cycle completed");
+            }
+            catch (OperationCanceledException)
+            {
+                // arrêt normal
+                _logger.LogInformation("ThumbnailWorker cancellation requested");
+                break;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error in ThumbnailWorker cycle");
             }
 
-            _logger.LogInformation("ThumbnailWorker completed thumbnail generation");
+            // ⏳ Pause de 10 minutes entre deux cycles
+            try
+            {
+                _logger.LogInformation("ThumbnailWorker sleeping for 10 minutes");
+                await Task.Delay(TimeSpan.FromMinutes(10), stoppingToken);
+            }
+            catch (OperationCanceledException)
+            {
+                break;
+            }
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error in ThumbnailWorker");
-        }
+
+        _logger.LogInformation("ThumbnailWorker stopped");
     }
+
 
     private async Task GenerateThumbnailAsync(
         string categoryName,
