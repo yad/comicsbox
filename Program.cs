@@ -2,6 +2,7 @@ using comicsbox.Models;
 using comicsbox.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+var pathBase = builder.Configuration.GetValue<string>("PathBase");
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -20,6 +21,10 @@ builder.Services.AddHostedService(sp => sp.GetRequiredService<ZipWorker>()); // 
 builder.Services.Configure<List<BookCategory>>(builder.Configuration.GetSection("BookCategories"));
 
 var app = builder.Build();
+if (!string.IsNullOrEmpty(pathBase))
+{
+    app.UsePathBase(pathBase);
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
