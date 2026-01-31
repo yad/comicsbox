@@ -116,6 +116,7 @@ public class ComicsController : Controller
             return NotFound();
 
         var books = Directory.GetFiles(seriesPath, "*.pdf")
+            .OrderBy(name => name)
             .Select(file => new CardItemViewModel
             {
                 Title = Path.GetFileNameWithoutExtension(file),
