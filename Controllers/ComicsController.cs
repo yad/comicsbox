@@ -103,7 +103,7 @@ public class ComicsController : Controller
 
         if (_cache.TryGetValue(cacheKey, out LibraryViewModel? vm))
         {
-            SetBackToSeries(category);
+            SetBackToSeries();
             return View(vm);
         }
 
@@ -151,7 +151,7 @@ public class ComicsController : Controller
             });
         }
 
-        SetBackToSeries(category);
+        SetBackToSeries();
 
         _cache.Set(cacheKey, vm, TimeSpan.FromHours(4));
         return View(vm);
@@ -294,13 +294,11 @@ public class ComicsController : Controller
     private void SetBackToIndex()
     {
         ViewData["ShowBackButton"] = true;
-        ViewData["BackUrl"] = Url.Action("Index", "Comics");
     }
 
-    private void SetBackToSeries(string category)
+    private void SetBackToSeries()
     {
         ViewData["ShowBackButton"] = true;
-        ViewData["BackUrl"] = Url.Action("Series", "Comics", new { category });
     }
 
     private string GetCategoryCover(string category)
@@ -344,7 +342,7 @@ public class ComicsController : Controller
         var cachePath = Path.Combine(cacheDir, thumbName);
 
         return System.IO.File.Exists(cachePath)
-            ? $"/cache/thumbnails/{thumbName}"
+            ? $"~/cache/thumbnails/{thumbName}"
             : GetPlaceholder();
     }
 
@@ -433,7 +431,7 @@ public class ComicsController : Controller
         var cachePath = Path.Combine(cacheDir, thumbName);
 
         return System.IO.File.Exists(cachePath)
-            ? $"/cache/thumbnails/{thumbName}"
+            ? $"~/cache/thumbnails/{thumbName}"
             : GetPlaceholder();
     }
 }

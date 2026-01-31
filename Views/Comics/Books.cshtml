@@ -1,5 +1,9 @@
 @model LibraryViewModel
 
+@{
+    var pathBase = Context.Request.PathBase;
+}
+
 <div class="container">
     <div class="text-center my-5">
         <h1 class="display-4">@Model.Title</h1>
@@ -25,6 +29,8 @@ document.addEventListener("DOMContentLoaded", () => {
             e.preventDefault(); // empêche le GET classique
             e.stopPropagation();
 
+            const pathBase = '@pathBase';
+
             overlay.classList.remove("d-none");
 
             // Récupère les infos depuis les data-attributes du bouton
@@ -32,12 +38,12 @@ document.addEventListener("DOMContentLoaded", () => {
             const series = btn.dataset.series;
 
             // Lancer génération ZIP via API RESTful
-            const startResp = await fetch(`/Comics/Zip/${encodeURIComponent(category)}/${encodeURIComponent(series)}`);
+            const startResp = await fetch(`${pathBase}/Comics/Zip/${encodeURIComponent(category)}/${encodeURIComponent(series)}`);
             const startData = await startResp.json();
 
             // Polling pour vérifier quand le ZIP est prêt
             const interval = setInterval(async () => {
-                const statusResp = await fetch(`/Comics/ZipStatus/${encodeURIComponent(category)}/${encodeURIComponent(series)}`);
+                const statusResp = await fetch(`${pathBase}/Comics/ZipStatus/${encodeURIComponent(category)}/${encodeURIComponent(series)}`);
                 const statusData = await statusResp.json();
 
                 if (statusData.status === "ready") {
@@ -45,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     overlay.classList.add("d-none");
 
                     // Téléchargement réel
-                    window.location.href = `/Comics/ZipFile/${encodeURIComponent(category)}/${encodeURIComponent(series)}`;
+                    window.location.href = `${pathBase}/Comics/ZipFile/${encodeURIComponent(category)}/${encodeURIComponent(series)}`;
                 }
             }, 1500);
         });
