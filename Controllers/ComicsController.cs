@@ -58,7 +58,7 @@ public class ComicsController : Controller
     {
         var cacheKey = $"series::{category}";
 
-        if (_cache.TryGetValue(cacheKey, out LibraryViewModel vm))
+        if (_cache.TryGetValue(cacheKey, out LibraryViewModel? vm))
         {
             SetBackToIndex();
             return View(vm);
@@ -101,7 +101,7 @@ public class ComicsController : Controller
     {
         var cacheKey = $"books::{category}::{series}";
 
-        if (_cache.TryGetValue(cacheKey, out LibraryViewModel vm))
+        if (_cache.TryGetValue(cacheKey, out LibraryViewModel? vm))
         {
             SetBackToSeries(category);
             return View(vm);
@@ -184,7 +184,7 @@ public class ComicsController : Controller
                         Controller = "Comics",
                         RouteValues = new { category = category.Name, series },
                         Category = category.Name,
-                        Series = series
+                        Series = series!
                     });
                 }
             }
@@ -320,7 +320,7 @@ public class ComicsController : Controller
 
         // Choisir une série au hasard
         var random = new Random();
-        var series = seriesList[random.Next(seriesList.Count)];
+        var series = seriesList[random.Next(seriesList.Count)]!;
 
         var seriesPath = Path.Combine(cat.Path, series);
         var pdfs = Directory.GetFiles(seriesPath, "*.pdf")

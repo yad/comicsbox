@@ -39,6 +39,6 @@ public class ImageRenderListener : IEventListener
 
     public ICollection<EventType> GetSupportedEvents()
     {
-        return null;
+        return null!;
     }
 }
