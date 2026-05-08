@@ -30,7 +30,7 @@
                 <!-- LEFT: Home + Back -->
                 <div class="d-flex align-items-center">
                     <!-- Home -->
-                    <button class="header-btn me-2" type="button" onclick="home()" title="Accueil">
+                    <button class="header-btn" type="button" onclick="home()" title="Accueil">
                         🏠
                     </button>
 
@@ -46,10 +46,13 @@
                 <!-- RIGHT: Search + Theme -->
                 <div class="d-flex align-items-center">
                     <!-- Search form -->
-                    <form class="d-flex align-items-center me-2" method="get" action="@Url.Action("Search", "Comics")">
-                        <input class="form-control me-2" type="search" name="query" placeholder="Rechercher des séries..." aria-label="Search">
+                    <form class="d-flex align-items-center search-form" method="get" action="@Url.Action("Search", "Comics")">
+                        <input class="form-control" type="search" name="query" placeholder="Rechercher des séries..." aria-label="Search">
                         <button class="header-btn" type="submit">🔍</button>
                     </form>
+
+                    <!-- Sort toggle -->
+                    <button id="sort-toggle" class="header-btn" type="button">🆕</button>
 
                     <!-- Theme toggle -->
                     <button id="theme-toggle" class="header-btn" type="button">🌙</button>
@@ -84,26 +87,45 @@
 
         (function(){
             const body = document.getElementById('body');
-            const toggle = document.getElementById('theme-toggle');
+            const sortToggle = document.getElementById('sort-toggle');
+            const themeToggle = document.getElementById('theme-toggle');
 
-            // Vérifie le theme dans localStorage
-            const stored = localStorage.getItem('theme');
-            if(stored) {
-                body.className = stored + ' d-flex flex-column min-vh-100';
-                toggle.textContent = stored === 'theme-dark' ? '☀️' : '🌙';
+            const sort = localStorage.getItem('cb-sort');
+            if(sort) {
+                sortToggle.textContent = sort === 'new' ? '🆕' : '🔤';
+            } else {
+                localStorage.setItem('cb-sort', 'alpha');
+                sortToggle.textContent = '🔤';
             }
 
-            toggle.addEventListener('click', () => {
+            sortToggle.addEventListener('click', () => {
+                const currentSort = localStorage.getItem('cb-sort');
+                const newSort = currentSort === 'new' ? 'alpha' : 'new';
+                localStorage.setItem('cb-sort', newSort);
+                sortToggle.textContent = newSort === 'new' ? '🆕' : '🔤';
+
+                const url = new URL(window.location.href);
+                url.searchParams.set('sort', newSort);
+                window.location.replace(url.toString());
+            });
+
+            const theme = localStorage.getItem('cb-theme');
+            if(theme) {
+                body.className = theme + ' d-flex flex-column min-vh-100';
+                themeToggle.textContent = theme === 'theme-dark' ? '☀️' : '🌙';
+            }
+
+            themeToggle.addEventListener('click', () => {
                 if(body.classList.contains('theme-dark')){
                     body.classList.remove('theme-dark');
                     body.classList.add('theme-light');
-                    localStorage.setItem('theme','theme-light');
-                    toggle.textContent = '🌙';
+                    localStorage.setItem('cb-theme','theme-light');
+                    themeToggle.textContent = '🌙';
                 } else {
                     body.classList.remove('theme-light');
                     body.classList.add('theme-dark');
-                    localStorage.setItem('theme','theme-dark');
-                    toggle.textContent = '☀️';
+                    localStorage.setItem('cb-theme','theme-dark');
+                    themeToggle.textContent = '☀️';
                 }
             });
         })();

@@ -6,7 +6,7 @@
         @foreach (var item in Model)
         {
             <div class="col-6 col-md-4 col-lg-3 d-flex justify-content-center">
-                <a class="text-decoration-none w-100 d-flex justify-content-center @(item.IsEmoji ? "zip-btn" : "")"
+                <a class="text-decoration-none w-100 d-flex justify-content-center @(item.IsEmoji ? "zip-btn" : "") dynamic-link"
                 href="@Url.Action(item.Action, item.Controller, item.RouteValues)"
                 data-category="@item.Category"
                 data-series="@(item.Series ?? "")">
@@ -35,3 +35,21 @@ else
 {
     <p>Aucun élément trouvé.</p>
 }
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const sort = localStorage.getItem("cb-sort");
+
+        document.querySelectorAll(".dynamic-link").forEach(link => {
+
+            let url = new URL(link.href);
+
+            if (sort) {
+                url.searchParams.set("sort", sort);
+            }
+
+            link.href = url.toString();
+        });
+    });
+</script>

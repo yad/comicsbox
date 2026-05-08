@@ -54,9 +54,10 @@ public class ComicsController : Controller
      * SERIES (/Mangas)
      * ============================ */
     [HttpGet("{category}")]
-    public IActionResult Series(string category)
+    public IActionResult Series(string category, string? sort)
     {
-        var cacheKey = $"series::{category}";
+        var sortMode = sort == "new" ? "new" : "alpha";
+        var cacheKey = $"series::{category}::{sortMode}";
 
         if (_cache.TryGetValue(cacheKey, out LibraryViewModel? vm))
         {
@@ -68,21 +69,36 @@ public class ComicsController : Controller
         if (cat == null || !Directory.Exists(cat.Path))
             return NotFound();
 
+        var directories = Directory.GetDirectories(cat.Path);
+
+        var sortedDirectories = sortMode switch
+        {
+            "new" => directories
+                .OrderByDescending(d => Directory.GetLastWriteTime(d)),
+
+            _ => directories
+                .OrderBy(d => Path.GetFileName(d))
+        };
+
         vm = new LibraryViewModel
         {
             Title = $"{category} – Séries",
             Category = category,
-            Items = Directory.GetDirectories(cat.Path)
-                .Select(Path.GetFileName)
-                .Where(name => !string.IsNullOrWhiteSpace(name))
-                .OrderBy(name => name)
-                .Select(series => new CardItemViewModel
+
+            Items = sortedDirectories
+                .Select(dir => new
                 {
-                    Title = series!,
-                    ImageUrl = GetCoverPath(category, series!),
+                    FullPath = dir,
+                    Name = Path.GetFileName(dir)
+                })
+                .Where(x => !string.IsNullOrWhiteSpace(x.Name))
+                .Select(x => new CardItemViewModel
+                {
+                    Title = x.Name!,
+                    ImageUrl = GetCoverPath(category, x.Name!),
                     Action = "Books",
                     Controller = "Comics",
-                    RouteValues = new { category, series }
+                    RouteValues = new { category, series = x.Name }
                 })
                 .ToList()
         };
