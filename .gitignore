@@ -76,3 +76,5 @@ yarn-error.log*
 *.tmp
 *.bak
 *.old
+
+docker-compose.override.yml
