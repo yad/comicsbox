@@ -56,7 +56,7 @@ public class ComicsController : Controller
     [HttpGet("{category}")]
     public IActionResult Series(string category, string? sort)
     {
-        var sortMode = sort == "new" ? "new" : "alpha";
+        var sortMode = string.IsNullOrWhiteSpace(sort) ? "new" : sort;
         var cacheKey = $"series::{category}::{sortMode}";
 
         if (_cache.TryGetValue(cacheKey, out LibraryViewModel? vm))
@@ -75,6 +75,9 @@ public class ComicsController : Controller
         {
             "new" => directories
                 .OrderByDescending(d => Directory.GetLastWriteTime(d)),
+
+            "count" => directories
+                .OrderByDescending(d => Directory.GetFiles(d).Length),
 
             _ => directories
                 .OrderBy(d => Path.GetFileName(d))
@@ -95,6 +98,8 @@ public class ComicsController : Controller
                 .Select(x => new CardItemViewModel
                 {
                     Title = x.Name!,
+                    Count = Directory.GetFiles(x.FullPath, "*.pdf").Length,
+                    Date = Directory.GetFiles(x.FullPath, "*.pdf").Select(f => new FileInfo(f).LastWriteTime).OrderByDescending(d => d).FirstOrDefault().ToString("yyyy-MM-dd"),
                     ImageUrl = GetCoverPath(category, x.Name!),
                     Action = "Books",
                     Controller = "Comics",
@@ -136,6 +141,7 @@ public class ComicsController : Controller
             .Select(file => new CardItemViewModel
             {
                 Title = Path.GetFileNameWithoutExtension(file),
+                Date = new FileInfo(file).LastWriteTime.ToString("yyyy-MM-dd"),
                 ImageUrl = GetCoverPath(category, series, Path.GetFileName(file)),
                 Action = "Download",
                 Controller = "Comics",

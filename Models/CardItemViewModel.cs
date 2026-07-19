@@ -3,6 +3,8 @@ namespace comicsbox.Models;
 public class CardItemViewModel
 {
     public string Title { get; set; } = "";
+    public int? Count { get; set; } = null;
+    public string Date { get; set; } = "";
     public string ImageUrl { get; set; } = "";
     public string Action { get; set; } = "";
     public string Controller { get; set; } = "";
@@ -12,4 +14,5 @@ public class CardItemViewModel
     // ✅ Ajouter ces deux propriétés
     public string Category { get; set; } = "";
     public string Series { get; set; } = "";
+
 }

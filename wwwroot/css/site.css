@@ -72,6 +72,19 @@ body, .card, .card-body, .card-title, h1,h2,h3,h4,h5,p {
     color: var(--text-main) !important;
 }
 
+.card-date {
+    position: absolute;
+    left: 5px;
+    top: 2px;
+    writing-mode: vertical-rl;
+}
+
+.card-count {
+    position: absolute;
+    right: 5px;
+    top: 2px
+}
+
 /* =========================================================
    NAVBAR MODERNE
    ========================================================= */

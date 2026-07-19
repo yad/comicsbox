@@ -25,6 +25,13 @@
                         <div class="card-body">
                             <h5 class="card-title">@item.Title</h5>
                         </div>
+                        <div class="card-date">
+                            <h6 class="card-title">@item.Date</h6>
+                        </div>
+                        <div class="card-count">
+                            <h6 class="card-title">@(item.Count == null ? "" : string.Format("x{0}", item.Count))</h6>
+                        </div>
+
                     </div>
                 </a>
             </div>

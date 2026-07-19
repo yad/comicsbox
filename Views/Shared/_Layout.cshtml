@@ -92,17 +92,46 @@
 
             const sort = localStorage.getItem('cb-sort');
             if(sort) {
-                sortToggle.textContent = sort === 'new' ? '🆕' : '🔤';
+                switch (sort) {
+                    case 'new':
+                        sortToggle.textContent = '🆕';
+                        break;
+                    case 'alpha':
+                        sortToggle.textContent = '🔠';
+                        break;
+                    case 'count':
+                        sortToggle.textContent = '🔢';
+                        break;
+                    default:
+                        sortToggle.textContent = '🔠';
+                }
             } else {
                 localStorage.setItem('cb-sort', 'alpha');
-                sortToggle.textContent = '🔤';
+                sortToggle.textContent = '🔠';
             }
 
             sortToggle.addEventListener('click', () => {
                 const currentSort = localStorage.getItem('cb-sort');
-                const newSort = currentSort === 'new' ? 'alpha' : 'new';
+                let newSort;
+                switch (currentSort) {
+                    case 'new':
+                        newSort = 'alpha';
+                        sortToggle.textContent = '🔠'
+                        break;
+                    case 'alpha':
+                        newSort = 'count';
+                        sortToggle.textContent = '🔢'
+                        break;
+                    case 'count':
+                        newSort = 'new';
+                        sortToggle.textContent = '🆕'
+                        break;
+                    default:
+                        newSort = 'alpha';
+                        sortToggle.textContent = '🔠'
+                        break;
+                }
                 localStorage.setItem('cb-sort', newSort);
-                sortToggle.textContent = newSort === 'new' ? '🆕' : '🔤';
 
                 const url = new URL(window.location.href);
                 url.searchParams.set('sort', newSort);
